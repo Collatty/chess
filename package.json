@@ -1,0 +1,24 @@
+{
+  "name": "@collatty/chess",
+  "version": "1.0.0",
+  "description": "Chess client ",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Collatty/chess.git"
+  },
+  "keywords": [
+    "chess",
+    "react",
+    "typescript"
+  ],
+  "author": "Collatty",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Collatty/chess/issues"
+  },
+  "homepage": "https://github.com/Collatty/chess#readme"
+}
