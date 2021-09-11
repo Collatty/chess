@@ -1,4 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Chess } from './Chess';
+import './style.css';
 
-ReactDOM.render(<div>Hello world</div>, document.getElementById('root'));
+ReactDOM.render(<Chess />, document.getElementById('root'));

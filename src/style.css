@@ -1,0 +1,40 @@
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+.black {
+  width: 12.5%;
+  height: 12.5%;
+  border: solid 1px black;
+  background-color: aliceblue;
+}
+
+.white {
+  background-color: #ff3;
+  width: 12.5%;
+  height: 12.5%;
+  border: solid 1px black;
+}
+
+.board {
+  display: flex;
+  flex-direction: row;
+  padding: 5%;
+  height: 100%;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+}

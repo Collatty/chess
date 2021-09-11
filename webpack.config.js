@@ -6,7 +6,10 @@ module.exports = (env, args) => ({
   entry: './src/index.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].[hash].js',
+    filename: '[name].[fullhash].js',
+  },
+  resolve: {
+    extensions: ['.wasm', '.ts', '.tsx', '.mjs', '.cjs', '.js', '.json'],
   },
   module: {
     rules: [
@@ -14,6 +17,20 @@ module.exports = (env, args) => ({
         test: /\.tsx?$/,
         exclude: /node_modules/,
         loader: 'ts-loader',
+      },
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+          },
+        },
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },
