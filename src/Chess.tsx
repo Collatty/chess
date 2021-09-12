@@ -3,7 +3,7 @@ import { Board } from './Board';
 
 export const Chess = () => (
   <div className="chess">
-    <h1>Awesome chess board!!</h1>
+    <h1 className="header-primary">Collatty chess</h1>
     <Board></Board>
   </div>
 );
