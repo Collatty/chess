@@ -9,7 +9,7 @@ export const Board = () => {
     <div className="board">
       {RANKS.map((rank) => {
         return FILES.map((file, index) => {
-          const color = (index + rank) % 2 === 0 ? 'white' : 'black';
+          const color = (index + rank) % 2 === 0 ? 'black' : 'white';
           return (
             <Tile
               key={rank + index}
