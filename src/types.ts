@@ -1,11 +1,19 @@
 export interface ITile {
-  piece?: IPiece;
+  piece:
+    | null
+    | 'bp'
+    | 'wp'
+    | 'br'
+    | 'wr'
+    | 'bkn'
+    | 'wkn'
+    | 'bb'
+    | 'wb'
+    | 'bq'
+    | 'wq'
+    | 'bk'
+    | 'wk';
   rank: number;
   file: string;
   backgroundColor: string;
-}
-
-export interface IPiece {
-  name: string;
-  color: string;
 }

@@ -13,7 +13,7 @@ export const Board = () => {
           return (
             <Tile
               key={rank + index}
-              piece={undefined}
+              piece={null}
               backgroundColor={color}
               file={file}
               rank={rank}
