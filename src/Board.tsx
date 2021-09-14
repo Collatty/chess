@@ -43,11 +43,11 @@ const mapInitialPiecePositions = (rank: number, file: string): string => {
 }
 
 const initBoard = () => {
-    return RANKS.flatMap((rank) => {
+    return RANKS.reverse().flatMap((rank) => {
         console.log(rank)
 
         return FILES.map((file, index) => {
-            const color = (index + rank) % 2 === 0 ? 'black' : 'white'
+            const color = (index + rank) % 2 === 0 ? 'white' : 'black'
             return (
                 <Tile
                     key={Math.random()}
@@ -62,6 +62,9 @@ const initBoard = () => {
 }
 
 export const Board = () => {
+    const [primaryPlayer, setPrimaryPlayer] = useState<'white' | 'black'>(
+        'white'
+    )
     const [tiles, setTiles] = useState<JSX.Element[]>(initBoard())
     console.log(tiles)
 
