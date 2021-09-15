@@ -1,4 +1,6 @@
 import React from 'react'
+import Draggable from 'react-draggable'
+
 import { ITile } from './types'
 import './style.css'
 import BlackPawn from './pieces/BlackPawn'
@@ -14,7 +16,7 @@ import WhiteQueen from './pieces/WhiteQueen'
 import BlackKing from './pieces/BlackKing'
 import WhiteKing from './pieces/WhiteKing'
 
-const pieceSwitch = (piece: string) => {
+const pieceSwitch = (piece: string): JSX.Element => {
     switch (piece) {
         case 'wp':
             return <WhitePawn />
@@ -40,12 +42,23 @@ const pieceSwitch = (piece: string) => {
             return <BlackKing />
         case 'wk':
             return <WhiteKing />
+        default:
+            throw Error('Invalid piece given!')
     }
 }
 
+const makeDraggable = (
+    pieceSwitch: (piece: string) => JSX.Element,
+    piece: string
+) => (
+    <Draggable>
+        <div>{pieceSwitch(piece)}</div>
+    </Draggable>
+)
+
 const Tile = ({ piece, backgroundColor, file, rank }: ITile) => (
     <div className={`tile ${backgroundColor}`}>
-        {pieceSwitch(piece)}
+        {piece && makeDraggable(pieceSwitch, piece)}
         <div>{rank}</div>
         <div>{file}</div>
     </div>

@@ -25,7 +25,8 @@
   "homepage": "https://github.com/Collatty/chess#readme",
   "dependencies": {
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "react-draggable": "^4.4.4"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.15.6",
