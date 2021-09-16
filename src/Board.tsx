@@ -66,7 +66,6 @@ export const Board = () => {
         'white'
     )
     const [tiles, setTiles] = useState<JSX.Element[]>(initBoard())
-    console.log(tiles)
 
     return <div className="board">{tiles}</div>
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import Draggable from 'react-draggable'
+import Draggable, { DraggableEvent } from 'react-draggable'
 
 import { ITile } from './types'
 import './style.css'
@@ -47,12 +47,16 @@ const pieceSwitch = (piece: string): JSX.Element => {
     }
 }
 
+const onDrop = (e: DraggableEvent) => {
+    console.log(e)
+}
+
 const makeDraggable = (
     pieceSwitch: (piece: string) => JSX.Element,
     piece: string
 ) => (
-    <Draggable>
-        <div>{pieceSwitch(piece)}</div>
+    <Draggable onStop={onDrop} bounds=".board">
+        <div className="draggable-wrapper">{pieceSwitch(piece)}</div>
     </Draggable>
 )
 
