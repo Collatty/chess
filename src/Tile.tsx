@@ -1,5 +1,5 @@
-import React from 'react';
-import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
+import React, { useState } from 'react';
+import { useDrag, useDrop } from 'react-dnd';
 
 import { ITile } from './types';
 import './style.css';
@@ -16,7 +16,7 @@ import WhiteQueen from './pieces/WhiteQueen';
 import BlackKing from './pieces/BlackKing';
 import WhiteKing from './pieces/WhiteKing';
 
-const pieceSwitch = (piece: string): JSX.Element => {
+const pieceSwitch = (piece?: string): JSX.Element => {
     switch (piece) {
         case 'wp':
             return <WhitePawn />;
@@ -43,42 +43,61 @@ const pieceSwitch = (piece: string): JSX.Element => {
         case 'wk':
             return <WhiteKing />;
         default:
-            throw Error('Invalid piece given!');
+            return <></>;
     }
 };
 
-const onDrop = (event: DraggableEvent, data: DraggableData) => {
-    // console.log(event.target)
-    // console.log(data)
+interface DraggablePiece {
+    piece: string;
+    fromCell: string;
+    clearPreviousTile: () => void;
+}
+
+const DraggablePiece = (piece: string, clearPreviousTile: () => void) => {
+    const [{ isDragging }, drag, dragPreview] = useDrag(
+        {
+            type: 'PIECE',
+            item: { piece, clearPreviousTile },
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+            }),
+        },
+        [piece, clearPreviousTile]
+    );
+
+    return (
+        <div
+            className="draggable-wrapper"
+            ref={dragPreview}
+            style={{ opacity: isDragging ? 0.3 : 1 }}
+        >
+            <div ref={drag}>{pieceSwitch(piece)}</div>
+        </div>
+    );
 };
 
-const test = () => {
-    console.log('test');
-    console.log();
-    console.log();
+const Tile = ({ piece, backgroundColor, file, rank }: ITile) => {
+    const [pieceOnTile, setPieceOnTile] = useState<string>(piece);
+    const [{ canDrop }, drop] = useDrop({
+        accept: 'PIECE',
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
+        drop: (item: DraggablePiece) => {
+            item.clearPreviousTile();
+            setPieceOnTile(item.piece);
+        },
+    });
+
+    return (
+        <div className={`tile ${backgroundColor}`} ref={drop} role={'Tile'}>
+            {DraggablePiece(pieceOnTile, () => setPieceOnTile(''))}
+            {/* <div>{rank}</div>
+            <div>{file}</div> */}
+            {/* {canDrop && <div>Drop</div>} */}
+        </div>
+    );
 };
-
-const makeDraggable = (
-    pieceSwitch: (piece: string) => JSX.Element,
-    piece: string
-) => (
-    //<Draggable onStop={onDrop} bounds=".board">
-    <div className="draggable-wrapper" draggable>
-        {pieceSwitch(piece)}
-    </div>
-    //</Draggable>
-);
-
-const Tile = ({ piece, backgroundColor, file, rank }: ITile) => (
-    <div
-        className={`tile ${backgroundColor}`}
-        onDragEnter={() => console.log('Im dragged over')}
-        onDrop={() => console.log('drop me here')}
-    >
-        {piece && makeDraggable(pieceSwitch, piece)}
-        <div>{rank}</div>
-        <div>{file}</div>
-    </div>
-);
 
 export default Tile;

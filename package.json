@@ -25,6 +25,8 @@
   "homepage": "https://github.com/Collatty/chess#readme",
   "dependencies": {
     "react": "^17.0.2",
+    "react-dnd": "^14.0.3",
+    "react-dnd-html5-backend": "^14.0.1",
     "react-dom": "^17.0.2",
     "react-draggable": "^4.4.4"
   },
