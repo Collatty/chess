@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import { useDrag, useDrop, DragPreviewImage } from 'react-dnd';
 
 import { ITile } from './types';
 import './style.css';
@@ -54,7 +54,7 @@ interface DraggablePiece {
 }
 
 const DraggablePiece = (piece: string, clearPreviousTile: () => void) => {
-    const [{ isDragging }, drag, dragPreview] = useDrag(
+    const [{ isDragging }, drag] = useDrag(
         {
             type: 'PIECE',
             item: { piece, clearPreviousTile },
@@ -66,12 +66,10 @@ const DraggablePiece = (piece: string, clearPreviousTile: () => void) => {
     );
 
     return (
-        <div
-            className="draggable-wrapper"
-            ref={dragPreview}
-            style={{ opacity: isDragging ? 0.3 : 1 }}
-        >
-            <div ref={drag}>{pieceSwitch(piece)}</div>
+        <div className="draggable-wrapper">
+            <div style={{ opacity: isDragging ? 0.3 : 1 }} ref={drag}>
+                {pieceSwitch(piece)}
+            </div>
         </div>
     );
 };
