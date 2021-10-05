@@ -40,11 +40,24 @@ html {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 90vh;
     width: 100vw;
 }
 
 .draggable-wrapper {
     transform: translate(0, 0);
     cursor: grab;
+}
+
+.header {
+    height: 10vh;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    width: 100vw;
+    padding-left: 10%;
+}
+
+.logo {
+    transform: scale(1.5);
 }
