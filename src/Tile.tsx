@@ -47,17 +47,21 @@ const pieceSwitch = (piece?: string): JSX.Element => {
     }
 };
 
-interface DraggablePiece {
+export interface DraggablePiece {
     piece: string;
     fromCell: string;
     clearPreviousTile: () => void;
 }
 
-const DraggablePiece = (piece: string, clearPreviousTile: () => void) => {
+const DraggablePiece = (
+    piece: string,
+    fromCell: string,
+    clearPreviousTile: () => void
+) => {
     const [{ isDragging }, drag] = useDrag(
         {
             type: 'PIECE',
-            item: { piece, clearPreviousTile },
+            item: { piece, fromCell, clearPreviousTile },
             collect: (monitor) => ({
                 isDragging: monitor.isDragging(),
             }),
@@ -86,14 +90,15 @@ const Tile = ({ piece, backgroundColor, file, rank }: ITile) => {
             item.clearPreviousTile();
             setPieceOnTile(item.piece);
         },
+        canDrop: (item: DraggablePiece) => item.fromCell[0] === file,
     });
 
     return (
         <div className={`tile ${backgroundColor}`} ref={drop} role={'Tile'}>
-            {DraggablePiece(pieceOnTile, () => setPieceOnTile(''))}
+            {DraggablePiece(pieceOnTile, file + rank, () => setPieceOnTile(''))}
             {/* <div>{rank}</div>
             <div>{file}</div> */}
-            {/* {canDrop && <div>Drop</div>} */}
+            {canDrop && <div>Drop</div>}
         </div>
     );
 };
