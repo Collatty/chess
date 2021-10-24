@@ -1,6 +1,6 @@
 export interface ITile {
     piece: string;
-    rank: number;
+    rank: string;
     file: string;
     backgroundColor: string;
 }

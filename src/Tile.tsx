@@ -15,6 +15,7 @@ import BlackQueen from './pieces/BlackQueen';
 import WhiteQueen from './pieces/WhiteQueen';
 import BlackKing from './pieces/BlackKing';
 import WhiteKing from './pieces/WhiteKing';
+import { useBoard } from './state/useBoardReducer';
 
 const pieceSwitch = (piece?: string): JSX.Element => {
     switch (piece) {
@@ -78,8 +79,8 @@ const DraggablePiece = (
     );
 };
 
-const Tile = ({ piece, backgroundColor, file, rank }: ITile) => {
-    const [pieceOnTile, setPieceOnTile] = useState<string>(piece);
+export const Tile = ({ piece, backgroundColor, file, rank }: ITile) => {
+    const [state, dispatch] = useBoard();
     const [{ canDrop }, drop] = useDrop({
         accept: 'PIECE',
         collect: (monitor) => ({
@@ -88,19 +89,26 @@ const Tile = ({ piece, backgroundColor, file, rank }: ITile) => {
         }),
         drop: (item: DraggablePiece) => {
             item.clearPreviousTile();
-            setPieceOnTile(item.piece);
+            console.log('running');
+
+            dispatch({
+                type: 'move',
+                payload: {
+                    piece: item.piece,
+                    fromTile: item.fromCell,
+                    toTile: file + rank,
+                },
+            });
         },
         canDrop: (item: DraggablePiece) => item.fromCell[0] === file,
     });
 
     return (
         <div className={`tile ${backgroundColor}`} ref={drop} role={'Tile'}>
-            {DraggablePiece(pieceOnTile, file + rank, () => setPieceOnTile(''))}
+            {DraggablePiece(piece, file + rank, () => {})}
             {/* <div>{rank}</div>
             <div>{file}</div> */}
             {canDrop && <div>Drop</div>}
         </div>
     );
 };
-
-export default Tile;
