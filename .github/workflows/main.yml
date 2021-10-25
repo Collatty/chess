@@ -44,7 +44,13 @@ jobs:
     steps:
     - uses: actions/checkout/@v2
     - name: Deploy
-      run: aws amplify start-job --app-id d1v8vc4zl1pbl8 --branch-name master --job-type RELEASE | jq -r '.jobSummary.jobId'
+      run: |
+        JOB_ID=$(aws amplify start-job --app-id d1v8vc4zl1pbl8 --branch-name master --job-type RELEASE | jq -r '.jobSummary.jobId')
+        while [[ "$(aws amplify get-job --app-id d1v8vc4zl1pbl8 --branch-name master --job-id $JOB_ID | jq -r '.job.summary.status')" =~ ^(PENDING|RUNNING)$ ]]; do sleep 1; done
+        JOB_STATUS="$(aws amplify get-job --app-id d1v8vc4zl1pbl8 --branch-name master --job-id $JOB_ID | jq -r '.job.summary.status')"
+        echo "Job finished"
+        echo "Job status is $JOB_STATUS"
+
     
     
    
