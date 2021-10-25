@@ -44,7 +44,7 @@ jobs:
     steps:
     - uses: actions/checkout/@v2
     - name: Deploy
-      run: aws amplify start-job --app-id d1v8vc4zl1pbl8 --branch-name master --job-type RELEASE | jq -r '.jobSummary.jobId'
+      run: aws amplify start-job --app-id d1v8vc4zl1pbl8 --branch-name ${GITHUB_REF##*/} --job-type RELEASE | jq -r '.jobSummary.jobId'
     
     
    
