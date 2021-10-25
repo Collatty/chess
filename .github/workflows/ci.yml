@@ -46,6 +46,6 @@ jobs:
               run: |
                   JOB_ID=$(aws amplify start-job --app-id d1v8vc4zl1pbl8 --branch-name master --job-type RELEASE | jq -r '.jobSummary.jobId')
                   JOB_STATUS="$(aws amplify get-job --app-id d1v8vc4zl1pbl8 --branch-name master --job-id $JOB_ID | jq -r '.job.summary.status')"
-                  while [[ "$JOB_STATUS" =~ ^(PENDING|RUNNING)$ ]]; do sleep 1; echo "$JOB_STATUS"; done
+                  while [[ "$JOB_STATUS" =~ ^(PENDING|RUNNING)$ ]]; do sleep 1; JOB_STATUS="$(aws amplify get-job --app-id d1v8vc4zl1pbl8 --branch-name master --job-id $JOB_ID | jq -r '.job.summary.status')"; echo "$JOB_STATUS"; done
                   echo "Job status is $JOB_STATUS"
                   echo "Job finished"
