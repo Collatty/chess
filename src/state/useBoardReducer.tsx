@@ -11,13 +11,14 @@ import { getLegalMoves } from '../logic/rules';
 interface State {
     playerToMove: 'white' | 'black';
     board: Record<string, JSX.Element>;
-    legalMoves: string[];
+    legalMoves: number[];
 }
 
 export interface Payload {
     piece: string;
     fromTile: string;
     toTile: string;
+    index: number;
 }
 
 interface Action {
@@ -47,7 +48,7 @@ const reducer = (state: State, action: Action) => {
                 { piece: action.payload.piece }
             );
 
-            return { ...state, board: newBoard };
+            return { ...state, board: newBoard, legalMoves: [] };
         case 'dragStart':
             const legalMoves = getLegalMoves(action.payload, state.board);
             return { ...state, legalMoves };

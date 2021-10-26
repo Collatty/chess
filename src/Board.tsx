@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useBoard, useBoardReducer } from './state/useBoardReducer';
 import { Tile } from './Tile';
 
@@ -55,6 +55,7 @@ export const initBoard = () => {
                     backgroundColor={color}
                     file={file}
                     rank={rank}
+                    index={63 - (firstIndex * 8 + index)}
                 ></Tile>
             );
         });
@@ -64,7 +65,9 @@ export const initBoard = () => {
 
 export const Board = () => {
     const [state] = useBoard();
-    console.log(state.board.values);
+    useEffect(() => {
+        console.log(state.legalMoves);
+    }, [state]);
     return <div className="board">{Object.values(state.board)}</div>;
 };
 

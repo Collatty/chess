@@ -3,4 +3,5 @@ export interface ITile {
     rank: string;
     file: string;
     backgroundColor: string;
+    index: number;
 }

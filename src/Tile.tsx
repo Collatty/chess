@@ -54,7 +54,7 @@ export interface DraggablePiece {
     clearPreviousTile: () => void;
 }
 
-const DraggablePiece = (piece: string, fromCell: string) => {
+const DraggablePiece = (piece: string, fromCell: string, index: number) => {
     const [state, dispatch] = useBoard();
     const [{ isDragging }, drag] = useDrag(
         {
@@ -71,7 +71,7 @@ const DraggablePiece = (piece: string, fromCell: string) => {
         if (isDragging) {
             dispatch({
                 type: 'dragStart',
-                payload: { fromTile: fromCell, piece, toTile: '' },
+                payload: { fromTile: fromCell, piece, toTile: '', index },
             });
         }
     }, [isDragging]);
@@ -85,7 +85,7 @@ const DraggablePiece = (piece: string, fromCell: string) => {
     );
 };
 
-export const Tile = ({ piece, backgroundColor, file, rank }: ITile) => {
+export const Tile = ({ piece, backgroundColor, file, rank, index }: ITile) => {
     const [state, dispatch] = useBoard();
 
     const [{ canDrop }, drop] = useDrop(
@@ -93,7 +93,7 @@ export const Tile = ({ piece, backgroundColor, file, rank }: ITile) => {
             accept: 'PIECE',
             collect: (monitor) => ({
                 isOver: monitor.isOver(),
-                canDrop: state.legalMoves.includes(file + rank),
+                canDrop: state.legalMoves.includes(index),
             }),
             drop: (item: DraggablePiece) => {
                 item.fromCell !== file + rank
@@ -103,23 +103,28 @@ export const Tile = ({ piece, backgroundColor, file, rank }: ITile) => {
                               piece: item.piece,
                               fromTile: item.fromCell,
                               toTile: file + rank,
+                              index: -1,
                           },
                       })
                     : dispatch({
                           type: 'dragStop',
-                          payload: { fromTile: '', piece: '', toTile: '' },
+                          payload: {
+                              fromTile: '',
+                              piece: '',
+                              toTile: '',
+                              index: -1,
+                          },
                       });
             },
         }),
         [state]
     );
 
-    console.log(state.legalMoves);
-
     return (
         <div className={`tile ${backgroundColor}`} ref={drop} role={'Tile'}>
-            {DraggablePiece(piece, file + rank)}
+            {DraggablePiece(piece, file + rank, index)}
             {canDrop && <div>Drop</div>}
+            {index}
         </div>
     );
 };
