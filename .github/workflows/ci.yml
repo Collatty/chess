@@ -31,7 +31,6 @@ jobs:
             - name: Build
               run: npm run prod
     deploy:
-        if: github.event_name != 'pull_request'
         needs: build
         runs-on: ubuntu-latest
         env:
