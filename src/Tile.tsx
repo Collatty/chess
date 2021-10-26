@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDrag, useDrop, DragPreviewImage } from 'react-dnd';
 
 import { ITile } from './types';
@@ -54,21 +54,27 @@ export interface DraggablePiece {
     clearPreviousTile: () => void;
 }
 
-const DraggablePiece = (
-    piece: string,
-    fromCell: string,
-    clearPreviousTile: () => void
-) => {
+const DraggablePiece = (piece: string, fromCell: string) => {
+    const [state, dispatch] = useBoard();
     const [{ isDragging }, drag] = useDrag(
         {
             type: 'PIECE',
-            item: { piece, fromCell, clearPreviousTile },
+            item: { piece, fromCell },
             collect: (monitor) => ({
                 isDragging: monitor.isDragging(),
             }),
         },
-        [piece, clearPreviousTile]
+        [piece]
     );
+
+    useEffect(() => {
+        if (isDragging) {
+            dispatch({
+                type: 'dragStart',
+                payload: { fromTile: fromCell, piece, toTile: '' },
+            });
+        }
+    }, [isDragging]);
 
     return (
         <div className="draggable-wrapper">
@@ -81,33 +87,38 @@ const DraggablePiece = (
 
 export const Tile = ({ piece, backgroundColor, file, rank }: ITile) => {
     const [state, dispatch] = useBoard();
-    const [{ canDrop }, drop] = useDrop({
-        accept: 'PIECE',
-        collect: (monitor) => ({
-            isOver: monitor.isOver(),
-            canDrop: monitor.canDrop(),
-        }),
-        drop: (item: DraggablePiece) => {
-            item.clearPreviousTile();
-            console.log('running');
 
-            dispatch({
-                type: 'move',
-                payload: {
-                    piece: item.piece,
-                    fromTile: item.fromCell,
-                    toTile: file + rank,
-                },
-            });
-        },
-        canDrop: (item: DraggablePiece) => item.fromCell[0] === file,
-    });
+    const [{ canDrop }, drop] = useDrop(
+        () => ({
+            accept: 'PIECE',
+            collect: (monitor) => ({
+                isOver: monitor.isOver(),
+                canDrop: state.legalMoves.includes(file + rank),
+            }),
+            drop: (item: DraggablePiece) => {
+                item.fromCell !== file + rank
+                    ? dispatch({
+                          type: 'move',
+                          payload: {
+                              piece: item.piece,
+                              fromTile: item.fromCell,
+                              toTile: file + rank,
+                          },
+                      })
+                    : dispatch({
+                          type: 'dragStop',
+                          payload: { fromTile: '', piece: '', toTile: '' },
+                      });
+            },
+        }),
+        [state]
+    );
+
+    console.log(state.legalMoves);
 
     return (
         <div className={`tile ${backgroundColor}`} ref={drop} role={'Tile'}>
-            {DraggablePiece(piece, file + rank, () => {})}
-            {/* <div>{rank}</div>
-            <div>{file}</div> */}
+            {DraggablePiece(piece, file + rank)}
             {canDrop && <div>Drop</div>}
         </div>
     );
