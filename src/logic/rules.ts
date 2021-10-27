@@ -1,7 +1,31 @@
 import { calculateTileOffset } from './../utils';
-import { Payload, State } from '../state/useBoardReducer';
+import { Payload, State, makeMove } from '../state/useBoardReducer';
 
-export const getLegalMoves = (payload: Payload, state: State): number[] => {
+export const getLegalMoves = (state: State, payload: Payload): number[] => {
+    const allPossibleMovesForPiece = calculateAllMovesForPiece(state, payload);
+
+    return allPossibleMovesForPiece.filter((move) => {
+        const resultingState = makeMove(state, {
+            ...payload,
+            toTileIndex: move,
+        });
+        const allPossibleMovesInResultingState = resultingState.board.flatMap(
+            (piece, index) =>
+                payload.piece[0] !== piece[0]
+                    ? calculateAllMovesForPiece(resultingState, {
+                          piece,
+                          fromTileIndex: index,
+                          toTileIndex: -1,
+                      })
+                    : []
+        );
+        return !allPossibleMovesInResultingState.includes(
+            resultingState.board.indexOf(payload.piece[0] + 'k')
+        );
+    });
+};
+
+const calculateAllMovesForPiece = (state: State, payload: Payload) => {
     const { board, enPassantTileIndex } = state;
     const { piece, fromTileIndex } = payload;
     switch (piece) {
@@ -46,11 +70,17 @@ const getLegalMovesWhitePawn = (
     enPassantTileIndex: number
 ) => {
     const legalMoves = [];
-    if (7 < currentTileIndex && currentTileIndex <= 15) {
-        legalMoves.push(currentTileIndex + 8, currentTileIndex + 16);
-    } else {
+    if (!isOccupied(currentTileIndex + 8, board)) {
         legalMoves.push(currentTileIndex + 8);
+        if (
+            7 < currentTileIndex &&
+            currentTileIndex <= 15 &&
+            !isOccupied(currentTileIndex + 16, board)
+        ) {
+            legalMoves.push(currentTileIndex + 16);
+        }
     }
+
     const offsets = [7, 9];
     offsets.forEach((offset) => {
         const targetTileIndex = currentTileIndex + offset;
@@ -72,11 +102,17 @@ const getLegalMovesBlackPawn = (
     enPassantTileIndex: number
 ) => {
     const legalMoves: number[] = [];
-    if (48 <= currentTileIndex && currentTileIndex <= 55) {
-        legalMoves.push(currentTileIndex - 8, currentTileIndex - 16);
-    } else {
+    if (!isOccupied(currentTileIndex - 8, board)) {
         legalMoves.push(currentTileIndex - 8);
+        if (
+            48 <= currentTileIndex &&
+            currentTileIndex <= 55 &&
+            !isOccupied(currentTileIndex - 16, board)
+        ) {
+            legalMoves.push(currentTileIndex - 16);
+        }
     }
+
     const offsets = [-7, -9];
     offsets.forEach((offset) => {
         const targetTileIndex = currentTileIndex + offset;

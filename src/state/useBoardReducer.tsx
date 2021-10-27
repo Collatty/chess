@@ -36,116 +36,119 @@ export const useBoardReducer = () =>
         whiteCastleLong: true,
     });
 
+export const makeMove = (state: State, payload: Payload): State => {
+    const newBoard = [...state.board];
+
+    newBoard[payload.fromTileIndex] = '';
+    newBoard[payload.toTileIndex] = payload.piece;
+
+    if (payload.toTileIndex === state.enPassantTileIndex) {
+        payload.piece[0] === 'w'
+            ? (newBoard[payload.toTileIndex - 8] = '')
+            : (newBoard[payload.toTileIndex + 8] = '');
+    }
+    if (
+        payload.piece === 'wk' &&
+        payload.fromTileIndex === 3 &&
+        payload.toTileIndex === 1
+    ) {
+        newBoard[0] = '';
+        newBoard[2] = 'wr';
+    }
+    if (
+        payload.piece === 'wk' &&
+        payload.fromTileIndex === 3 &&
+        payload.toTileIndex === 5
+    ) {
+        newBoard[7] = '';
+        newBoard[4] = 'wr';
+    }
+    if (
+        payload.piece === 'bk' &&
+        payload.fromTileIndex === 59 &&
+        payload.toTileIndex === 57
+    ) {
+        newBoard[56] = '';
+        newBoard[58] = 'br';
+    }
+    if (
+        payload.piece === 'bk' &&
+        payload.fromTileIndex === 59 &&
+        payload.toTileIndex === 61
+    ) {
+        newBoard[63] = '';
+        newBoard[60] = 'br';
+    }
+
+    const enPassantTileIndex = getEnPassantTileIndex(payload);
+
+    switch (payload.fromTileIndex) {
+        case 0:
+            return {
+                ...state,
+                board: newBoard,
+                legalMoves: [],
+                enPassantTileIndex,
+                whiteCastleShort: false,
+            };
+        case 3:
+            return {
+                ...state,
+                board: newBoard,
+                legalMoves: [],
+                enPassantTileIndex,
+                whiteCastleShort: false,
+                whiteCastleLong: false,
+            };
+        case 7:
+            return {
+                ...state,
+                board: newBoard,
+                legalMoves: [],
+                enPassantTileIndex,
+                whiteCastleLong: false,
+            };
+        case 56:
+            return {
+                ...state,
+                board: newBoard,
+                legalMoves: [],
+                enPassantTileIndex,
+                blackCastleShort: false,
+            };
+        case 59:
+            return {
+                ...state,
+                board: newBoard,
+                legalMoves: [],
+                enPassantTileIndex,
+                blackCastleShort: false,
+                blackCastleLong: false,
+            };
+        case 63:
+            return {
+                ...state,
+                board: newBoard,
+                legalMoves: [],
+                enPassantTileIndex,
+                blackCastleLong: false,
+            };
+        default:
+            return {
+                ...state,
+                board: newBoard,
+                legalMoves: [],
+                enPassantTileIndex,
+            };
+    }
+};
+
 const reducer = (state: State, { type, payload }: Action) => {
     switch (type) {
         case 'move':
-            const newBoard = [...state.board];
-
-            newBoard[payload.fromTileIndex] = '';
-            newBoard[payload.toTileIndex] = payload.piece;
-
-            if (payload.toTileIndex === state.enPassantTileIndex) {
-                payload.piece[0] === 'w'
-                    ? (newBoard[payload.toTileIndex - 8] = '')
-                    : (newBoard[payload.toTileIndex + 8] = '');
-            }
-            if (
-                payload.piece === 'wk' &&
-                payload.fromTileIndex === 3 &&
-                payload.toTileIndex === 1
-            ) {
-                newBoard[0] = '';
-                newBoard[2] = 'wr';
-            }
-            if (
-                payload.piece === 'wk' &&
-                payload.fromTileIndex === 3 &&
-                payload.toTileIndex === 5
-            ) {
-                newBoard[7] = '';
-                newBoard[4] = 'wr';
-            }
-            if (
-                payload.piece === 'bk' &&
-                payload.fromTileIndex === 59 &&
-                payload.toTileIndex === 57
-            ) {
-                newBoard[56] = '';
-                newBoard[58] = 'br';
-            }
-            if (
-                payload.piece === 'bk' &&
-                payload.fromTileIndex === 59 &&
-                payload.toTileIndex === 61
-            ) {
-                newBoard[63] = '';
-                newBoard[60] = 'br';
-            }
-
-            const enPassantTileIndex = getEnPassantTileIndex(payload);
-
-            switch (payload.fromTileIndex) {
-                case 0:
-                    return {
-                        ...state,
-                        board: newBoard,
-                        legalMoves: [],
-                        enPassantTileIndex,
-                        whiteCastleShort: false,
-                    };
-                case 3:
-                    return {
-                        ...state,
-                        board: newBoard,
-                        legalMoves: [],
-                        enPassantTileIndex,
-                        whiteCastleShort: false,
-                        whiteCastleLong: false,
-                    };
-                case 7:
-                    return {
-                        ...state,
-                        board: newBoard,
-                        legalMoves: [],
-                        enPassantTileIndex,
-                        whiteCastleLong: false,
-                    };
-                case 56:
-                    return {
-                        ...state,
-                        board: newBoard,
-                        legalMoves: [],
-                        enPassantTileIndex,
-                        blackCastleShort: false,
-                    };
-                case 59:
-                    return {
-                        ...state,
-                        board: newBoard,
-                        legalMoves: [],
-                        enPassantTileIndex,
-                        blackCastleShort: false,
-                        blackCastleLong: false,
-                    };
-                case 63:
-                    return {
-                        ...state,
-                        board: newBoard,
-                        legalMoves: [],
-                        enPassantTileIndex,
-                        blackCastleLong: false,
-                    };
-                default:
-                    return {
-                        ...state,
-                        board: newBoard,
-                        legalMoves: [],
-                        enPassantTileIndex,
-                    };
-            }
-
+            return makeMove(state, payload);
         case 'dragStart':
-            const legalMoves = getLegalMoves(payload, state);
+            const legalMoves = getLegalMoves(state, payload);
             return { ...state, legalMoves };
         case 'dragStop':
             return { ...state, legalMoves: [] };
