@@ -19,6 +19,20 @@ export const getLegalMoves = (state: State, payload: Payload): number[] => {
                       })
                     : []
         );
+
+        if (
+            payload.piece[1] === 'k' &&
+            isSameRank(move, payload.fromTileIndex) &&
+            Math.abs(move - payload.fromTileIndex) === 2
+        )
+            return (
+                !allPossibleMovesInResultingState.includes(
+                    resultingState.board.indexOf(payload.piece[0] + 'k')
+                ) &&
+                !allPossibleMovesInResultingState.includes(
+                    (move + payload.fromTileIndex) / 2
+                )
+            );
         return !allPossibleMovesInResultingState.includes(
             resultingState.board.indexOf(payload.piece[0] + 'k')
         );
@@ -165,16 +179,20 @@ const getLegalMovesKing = (
     state: State,
     piece: string
 ) => {
-    const legalMoves = [
-        currentTileIndex - 7,
-        currentTileIndex - 8,
-        currentTileIndex - 9,
-        currentTileIndex - 1,
-        currentTileIndex + 1,
-        currentTileIndex + 7,
-        currentTileIndex + 8,
-        currentTileIndex + 9,
-    ];
+    const legalMoves = [currentTileIndex - 8, currentTileIndex + 8];
+
+    if (isSameRank(currentTileIndex + 1, currentTileIndex))
+        legalMoves.push(currentTileIndex + 1);
+    if (isSameRank(currentTileIndex - 1, currentTileIndex))
+        legalMoves.push(currentTileIndex - 1);
+    if (isDiagonal(currentTileIndex + 7, currentTileIndex))
+        legalMoves.push(currentTileIndex + 7);
+    if (isDiagonal(currentTileIndex - 7, currentTileIndex))
+        legalMoves.push(currentTileIndex - 7);
+    if (isDiagonal(currentTileIndex + 9, currentTileIndex))
+        legalMoves.push(currentTileIndex + 9);
+    if (isDiagonal(currentTileIndex - 9, currentTileIndex))
+        legalMoves.push(currentTileIndex - 9);
 
     legalMoves.push(...getCastlingMoves(currentTileIndex, piece, state));
 
