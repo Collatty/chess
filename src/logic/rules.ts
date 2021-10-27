@@ -1,14 +1,10 @@
 import { calculateTileOffset } from './../utils';
-import { Payload } from '../state/useBoardReducer';
+import { Payload, State } from '../state/useBoardReducer';
 
-export const getLegalMoves = (
-    payload: Payload,
-    board: string[],
-    enPassantTileIndex: number
-): number[] => {
-    console.log(payload.fromTileIndex);
+export const getLegalMoves = (payload: Payload, state: State): number[] => {
+    const { board, enPassantTileIndex } = state;
     const { piece, fromTileIndex } = payload;
-    switch (payload.piece) {
+    switch (piece) {
         case 'wp':
             return getLegalMovesWhitePawn(
                 fromTileIndex,
@@ -28,7 +24,7 @@ export const getLegalMoves = (
             return getLegalMovesKnight(fromTileIndex, board, piece);
         case 'wk':
         case 'bk':
-            return getLegalMovesKing(fromTileIndex, board, piece);
+            return getLegalMovesKing(fromTileIndex, state, piece);
         case 'wb':
         case 'bb':
             return getLegalMovesBishop(fromTileIndex, board, piece);
@@ -130,7 +126,7 @@ const getLegalMovesQueen = (
 
 const getLegalMovesKing = (
     currentTileIndex: number,
-    board: string[],
+    state: State,
     piece: string
 ) => {
     const legalMoves = [
@@ -144,10 +140,60 @@ const getLegalMovesKing = (
         currentTileIndex + 9,
     ];
 
+    legalMoves.push(...getCastlingMoves(currentTileIndex, piece, state));
+
     return legalMoves.filter(
         (targetTileIndex) =>
-            !isOccupiedByFriendlyPiece(targetTileIndex, board, piece)
+            !isOccupiedByFriendlyPiece(targetTileIndex, state.board, piece)
     );
+};
+
+const getCastlingMoves = (
+    currentTileIndex: number,
+    piece: string,
+    state: State
+): number[] => {
+    if (currentTileIndex === 3 && piece === 'wk')
+        return getCastlingMovesWhite(state);
+    if (currentTileIndex === 59 && piece === 'bk')
+        return getCastlingMovesBlack(state);
+    return [];
+};
+
+const getCastlingMovesWhite = ({
+    board,
+    whiteCastleLong,
+    whiteCastleShort,
+}: State) => {
+    const legalMoves = [];
+    if (whiteCastleShort && !isOccupied(1, board) && !isOccupied(2, board))
+        legalMoves.push(1);
+    if (
+        whiteCastleLong &&
+        !isOccupied(4, board) &&
+        !isOccupied(5, board) &&
+        !isOccupied(6, board)
+    )
+        legalMoves.push(5);
+    return legalMoves;
+};
+
+const getCastlingMovesBlack = ({
+    board,
+    blackCastleLong,
+    blackCastleShort,
+}: State) => {
+    const legalMoves = [];
+    if (blackCastleShort && !isOccupied(57, board) && !isOccupied(58, board))
+        legalMoves.push(57);
+    if (
+        blackCastleLong &&
+        !isOccupied(60, board) &&
+        !isOccupied(61, board) &&
+        !isOccupied(62, board)
+    )
+        legalMoves.push(61);
+    return legalMoves;
 };
 
 const getLegalMovesBishop = (

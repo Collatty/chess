@@ -2,11 +2,15 @@ import { createContext, Dispatch, useContext, useReducer } from 'react';
 import { INITIAL_BOARD } from '../Board';
 import { getLegalMoves, getEnPassantTileIndex } from '../logic/rules';
 
-interface State {
+export interface State {
     playerToMove: 'white' | 'black';
     board: string[];
     legalMoves: number[];
     enPassantTileIndex: number;
+    blackCastleShort: boolean;
+    blackCastleLong: boolean;
+    whiteCastleShort: boolean;
+    whiteCastleLong: boolean;
 }
 
 export interface Payload {
@@ -26,37 +30,122 @@ export const useBoardReducer = () =>
         board: INITIAL_BOARD,
         legalMoves: [],
         enPassantTileIndex: -1,
+        blackCastleShort: true,
+        blackCastleLong: true,
+        whiteCastleShort: true,
+        whiteCastleLong: true,
     });
 
-const reducer = (state: State, action: Action) => {
-    switch (action.type) {
+const reducer = (state: State, { type, payload }: Action) => {
+    switch (type) {
         case 'move':
             const newBoard = [...state.board];
 
-            newBoard[action.payload.fromTileIndex] = '';
-            newBoard[action.payload.toTileIndex] = action.payload.piece;
+            newBoard[payload.fromTileIndex] = '';
+            newBoard[payload.toTileIndex] = payload.piece;
 
-            if (action.payload.toTileIndex === state.enPassantTileIndex) {
-                action.payload.piece[0] === 'w'
-                    ? (newBoard[action.payload.toTileIndex - 8] = '')
-                    : (newBoard[action.payload.toTileIndex + 8] = '');
+            if (payload.toTileIndex === state.enPassantTileIndex) {
+                payload.piece[0] === 'w'
+                    ? (newBoard[payload.toTileIndex - 8] = '')
+                    : (newBoard[payload.toTileIndex + 8] = '');
+            }
+            if (
+                payload.piece === 'wk' &&
+                payload.fromTileIndex === 3 &&
+                payload.toTileIndex === 1
+            ) {
+                newBoard[0] = '';
+                newBoard[2] = 'wr';
+            }
+            if (
+                payload.piece === 'wk' &&
+                payload.fromTileIndex === 3 &&
+                payload.toTileIndex === 5
+            ) {
+                newBoard[7] = '';
+                newBoard[4] = 'wr';
+            }
+            if (
+                payload.piece === 'bk' &&
+                payload.fromTileIndex === 59 &&
+                payload.toTileIndex === 57
+            ) {
+                newBoard[56] = '';
+                newBoard[58] = 'br';
+            }
+            if (
+                payload.piece === 'bk' &&
+                payload.fromTileIndex === 59 &&
+                payload.toTileIndex === 61
+            ) {
+                newBoard[63] = '';
+                newBoard[60] = 'br';
             }
 
-            const enPassantTileIndex = getEnPassantTileIndex(action.payload);
-            console.log(enPassantTileIndex);
+            const enPassantTileIndex = getEnPassantTileIndex(payload);
 
-            return {
-                ...state,
-                board: newBoard,
-                legalMoves: [],
-                enPassantTileIndex,
-            };
+            switch (payload.fromTileIndex) {
+                case 0:
+                    return {
+                        ...state,
+                        board: newBoard,
+                        legalMoves: [],
+                        enPassantTileIndex,
+                        whiteCastleShort: false,
+                    };
+                case 3:
+                    return {
+                        ...state,
+                        board: newBoard,
+                        legalMoves: [],
+                        enPassantTileIndex,
+                        whiteCastleShort: false,
+                        whiteCastleLong: false,
+                    };
+                case 7:
+                    return {
+                        ...state,
+                        board: newBoard,
+                        legalMoves: [],
+                        enPassantTileIndex,
+                        whiteCastleLong: false,
+                    };
+                case 56:
+                    return {
+                        ...state,
+                        board: newBoard,
+                        legalMoves: [],
+                        enPassantTileIndex,
+                        blackCastleShort: false,
+                    };
+                case 59:
+                    return {
+                        ...state,
+                        board: newBoard,
+                        legalMoves: [],
+                        enPassantTileIndex,
+                        blackCastleShort: false,
+                        blackCastleLong: false,
+                    };
+                case 63:
+                    return {
+                        ...state,
+                        board: newBoard,
+                        legalMoves: [],
+                        enPassantTileIndex,
+                        blackCastleLong: false,
+                    };
+                default:
+                    return {
+                        ...state,
+                        board: newBoard,
+                        legalMoves: [],
+                        enPassantTileIndex,
+                    };
+            }
+
         case 'dragStart':
-            const legalMoves = getLegalMoves(
-                action.payload,
-                state.board,
-                state.enPassantTileIndex
-            );
+            const legalMoves = getLegalMoves(payload, state);
             return { ...state, legalMoves };
         case 'dragStop':
             return { ...state, legalMoves: [] };
@@ -71,6 +160,10 @@ export const BoardContext = createContext<[State, Dispatch<Action>]>([
         board: [],
         legalMoves: [],
         enPassantTileIndex: -1,
+        blackCastleShort: true,
+        blackCastleLong: true,
+        whiteCastleLong: true,
+        whiteCastleShort: true,
     },
     () => null,
 ]);
