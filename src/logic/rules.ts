@@ -1,14 +1,28 @@
 import { calculateTileOffset } from './../utils';
 import { Payload } from '../state/useBoardReducer';
 
-export const getLegalMoves = (payload: Payload, board: string[]): number[] => {
+export const getLegalMoves = (
+    payload: Payload,
+    board: string[],
+    enPassantTileIndex: number
+): number[] => {
     console.log(payload.fromTileIndex);
     const { piece, fromTileIndex } = payload;
     switch (payload.piece) {
         case 'wp':
-            return getLegalMovesWhitePawn(fromTileIndex, board, piece);
+            return getLegalMovesWhitePawn(
+                fromTileIndex,
+                board,
+                piece,
+                enPassantTileIndex
+            );
         case 'bp':
-            return getLegalMovesBlackPawn(fromTileIndex, board, piece);
+            return getLegalMovesBlackPawn(
+                fromTileIndex,
+                board,
+                piece,
+                enPassantTileIndex
+            );
         case 'wkn':
         case 'bkn':
             return getLegalMovesKnight(fromTileIndex, board, piece);
@@ -32,7 +46,8 @@ export const getLegalMoves = (payload: Payload, board: string[]): number[] => {
 const getLegalMovesWhitePawn = (
     currentTileIndex: number,
     board: string[],
-    piece: string
+    piece: string,
+    enPassantTileIndex: number
 ) => {
     const legalMoves = [];
     if (7 < currentTileIndex && currentTileIndex <= 15) {
@@ -45,8 +60,9 @@ const getLegalMovesWhitePawn = (
         const targetTileIndex = currentTileIndex + offset;
         if (
             isDiagonal(targetTileIndex, currentTileIndex) &&
-            isOccupied(targetTileIndex, board) &&
-            !isOccupiedByFriendlyPiece(targetTileIndex, board, piece)
+            ((isOccupied(targetTileIndex, board) &&
+                !isOccupiedByFriendlyPiece(targetTileIndex, board, piece)) ||
+                targetTileIndex === enPassantTileIndex)
         )
             legalMoves.push(targetTileIndex);
     });
@@ -56,7 +72,8 @@ const getLegalMovesWhitePawn = (
 const getLegalMovesBlackPawn = (
     currentTileIndex: number,
     board: string[],
-    piece: string
+    piece: string,
+    enPassantTileIndex: number
 ) => {
     const legalMoves: number[] = [];
     if (48 <= currentTileIndex && currentTileIndex <= 55) {
@@ -69,8 +86,9 @@ const getLegalMovesBlackPawn = (
         const targetTileIndex = currentTileIndex + offset;
         if (
             isDiagonal(targetTileIndex, currentTileIndex) &&
-            isOccupied(targetTileIndex, board) &&
-            !isOccupiedByFriendlyPiece(targetTileIndex, board, piece)
+            ((isOccupied(targetTileIndex, board) &&
+                !isOccupiedByFriendlyPiece(targetTileIndex, board, piece)) ||
+                targetTileIndex === enPassantTileIndex)
         )
             legalMoves.push(targetTileIndex);
     });
@@ -223,4 +241,16 @@ const isOccupiedByFriendlyPiece = (
 
 const isOccupied = (targetIndex: number, board: string[]) => {
     return !!board[targetIndex];
+};
+
+export const getEnPassantTileIndex = ({
+    piece,
+    fromTileIndex,
+    toTileIndex,
+}: Payload) => {
+    return piece[1] === 'p' && Math.abs(fromTileIndex - toTileIndex) === 16
+        ? piece[0] === 'w'
+            ? fromTileIndex + 8
+            : fromTileIndex - 8
+        : -1;
 };
