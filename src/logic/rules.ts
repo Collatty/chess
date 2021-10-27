@@ -6,9 +6,9 @@ export const getLegalMoves = (payload: Payload, board: string[]): number[] => {
     const { piece, fromTileIndex } = payload;
     switch (payload.piece) {
         case 'wp':
-            return getLegalMovesWhitePawn(fromTileIndex);
+            return getLegalMovesWhitePawn(fromTileIndex, board, piece);
         case 'bp':
-            return getLegalMovesBlackPawn(fromTileIndex);
+            return getLegalMovesBlackPawn(fromTileIndex, board, piece);
         case 'wkn':
         case 'bkn':
             return getLegalMovesKnight(fromTileIndex, board, piece);
@@ -29,23 +29,51 @@ export const getLegalMoves = (payload: Payload, board: string[]): number[] => {
     }
 };
 
-const getLegalMovesWhitePawn = (currentTileIndex: number) => {
+const getLegalMovesWhitePawn = (
+    currentTileIndex: number,
+    board: string[],
+    piece: string
+) => {
     const legalMoves = [];
     if (7 < currentTileIndex && currentTileIndex <= 15) {
         legalMoves.push(currentTileIndex + 8, currentTileIndex + 16);
     } else {
         legalMoves.push(currentTileIndex + 8);
     }
+    const offsets = [7, 9];
+    offsets.forEach((offset) => {
+        const targetTileIndex = currentTileIndex + offset;
+        if (
+            isDiagonal(targetTileIndex, currentTileIndex) &&
+            isOccupied(targetTileIndex, board) &&
+            !isOccupiedByFriendlyPiece(targetTileIndex, board, piece)
+        )
+            legalMoves.push(targetTileIndex);
+    });
     return legalMoves;
 };
 
-const getLegalMovesBlackPawn = (currentTileIndex: number) => {
-    const legalMoves = [];
+const getLegalMovesBlackPawn = (
+    currentTileIndex: number,
+    board: string[],
+    piece: string
+) => {
+    const legalMoves: number[] = [];
     if (48 <= currentTileIndex && currentTileIndex <= 55) {
         legalMoves.push(currentTileIndex - 8, currentTileIndex - 16);
     } else {
-        legalMoves.push(currentTileIndex + -8);
+        legalMoves.push(currentTileIndex - 8);
     }
+    const offsets = [-7, -9];
+    offsets.forEach((offset) => {
+        const targetTileIndex = currentTileIndex + offset;
+        if (
+            isDiagonal(targetTileIndex, currentTileIndex) &&
+            isOccupied(targetTileIndex, board) &&
+            !isOccupiedByFriendlyPiece(targetTileIndex, board, piece)
+        )
+            legalMoves.push(targetTileIndex);
+    });
     return legalMoves;
 };
 
@@ -126,7 +154,7 @@ const traverseDiagonals = (
     offsets.forEach((offset) => {
         let targetIndex = currentIndex + offset;
         while (
-            Math.abs((targetIndex % 8) - ((targetIndex - offset) % 8)) === 1 &&
+            isDiagonal(targetIndex, targetIndex - offset) &&
             0 <= targetIndex &&
             targetIndex <= 63
         ) {
@@ -172,6 +200,7 @@ const traverseLines = (
             if (isOccupied(targetIndex, board)) {
                 if (isOccupiedByFriendlyPiece(targetIndex, board, piece)) break;
                 legalMoves.push(targetIndex);
+                break;
             }
             legalMoves.push(targetIndex);
             targetIndex += offset;
@@ -182,6 +211,9 @@ const traverseLines = (
 
 const isSameRank = (targetIndex: number, currentIndex: number) =>
     ~~(targetIndex / 8) === ~~(currentIndex / 8);
+
+const isDiagonal = (targetIndex: number, currentIndex: number) =>
+    Math.abs((targetIndex % 8) - (currentIndex % 8)) === 1;
 
 const isOccupiedByFriendlyPiece = (
     targetTileIndex: number,
