@@ -50,16 +50,15 @@ const pieceSwitch = (piece?: string): JSX.Element => {
 
 export interface DraggablePiece {
     piece: string;
-    fromCell: string;
-    clearPreviousTile: () => void;
+    fromIndex: number;
 }
 
-const DraggablePiece = (piece: string, fromCell: string, index: number) => {
+const DraggablePiece = (piece: string, fromIndex: number) => {
     const [state, dispatch] = useBoard();
     const [{ isDragging }, drag] = useDrag(
         {
             type: 'PIECE',
-            item: { piece, fromCell },
+            item: { piece, fromIndex },
             collect: (monitor) => ({
                 isDragging: monitor.isDragging(),
             }),
@@ -68,12 +67,23 @@ const DraggablePiece = (piece: string, fromCell: string, index: number) => {
     );
 
     useEffect(() => {
-        if (isDragging) {
-            dispatch({
-                type: 'dragStart',
-                payload: { fromTile: fromCell, piece, toTile: '', index },
-            });
-        }
+        isDragging
+            ? dispatch({
+                  type: 'dragStart',
+                  payload: {
+                      piece,
+                      toTileIndex: -1,
+                      fromTileIndex: fromIndex,
+                  },
+              })
+            : dispatch({
+                  type: 'dragStop',
+                  payload: {
+                      piece: '',
+                      fromTileIndex: -1,
+                      toTileIndex: -1,
+                  },
+              });
     }, [isDragging]);
 
     return (
@@ -85,45 +95,31 @@ const DraggablePiece = (piece: string, fromCell: string, index: number) => {
     );
 };
 
-export const Tile = ({ piece, backgroundColor, file, rank, index }: ITile) => {
+export const Tile = ({ piece, backgroundColor, index }: ITile) => {
     const [state, dispatch] = useBoard();
 
-    const [{ canDrop }, drop] = useDrop(
+    const [_, drop] = useDrop(
         () => ({
             accept: 'PIECE',
-            collect: (monitor) => ({
-                isOver: monitor.isOver(),
-                canDrop: state.legalMoves.includes(index),
-            }),
             drop: (item: DraggablePiece) => {
-                item.fromCell !== file + rank
-                    ? dispatch({
-                          type: 'move',
-                          payload: {
-                              piece: item.piece,
-                              fromTile: item.fromCell,
-                              toTile: file + rank,
-                              index: -1,
-                          },
-                      })
-                    : dispatch({
-                          type: 'dragStop',
-                          payload: {
-                              fromTile: '',
-                              piece: '',
-                              toTile: '',
-                              index: -1,
-                          },
-                      });
+                dispatch({
+                    type: 'move',
+                    payload: {
+                        piece: item.piece,
+                        fromTileIndex: item.fromIndex,
+                        toTileIndex: index,
+                    },
+                });
             },
+            canDrop: () => state.legalMoves.includes(index),
         }),
         [state]
     );
 
     return (
         <div className={`tile ${backgroundColor}`} ref={drop} role={'Tile'}>
-            {DraggablePiece(piece, file + rank, index)}
-            {canDrop && <div>Drop</div>}
+            {DraggablePiece(piece, index)}
+            {state.legalMoves.includes(index) && <div>Drop</div>}
             {index}
         </div>
     );

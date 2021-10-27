@@ -1,24 +1,17 @@
-import { initBoard } from '../Board';
-import React, {
-    createContext,
-    Dispatch,
-    useContext,
-    useReducer,
-    cloneElement,
-} from 'react';
+import { createContext, Dispatch, useContext, useReducer } from 'react';
+import { INITIAL_BOARD } from '../Board';
 import { getLegalMoves } from '../logic/rules';
 
 interface State {
     playerToMove: 'white' | 'black';
-    board: Record<string, JSX.Element>;
+    board: string[];
     legalMoves: number[];
 }
 
 export interface Payload {
     piece: string;
-    fromTile: string;
-    toTile: string;
-    index: number;
+    fromTileIndex: number;
+    toTileIndex: number;
 }
 
 interface Action {
@@ -29,24 +22,17 @@ interface Action {
 export const useBoardReducer = () =>
     useReducer(reducer, {
         playerToMove: 'white',
-        board: initBoard(),
+        board: INITIAL_BOARD,
         legalMoves: [],
     });
 
 const reducer = (state: State, action: Action) => {
     switch (action.type) {
         case 'move':
-            const newBoard = { ...state.board };
+            const newBoard = [...state.board];
 
-            newBoard[action.payload.fromTile] = cloneElement(
-                newBoard[action.payload.fromTile],
-                { piece: '' }
-            );
-
-            newBoard[action.payload.toTile] = cloneElement(
-                newBoard[action.payload.toTile],
-                { piece: action.payload.piece }
-            );
+            newBoard[action.payload.fromTileIndex] = '';
+            newBoard[action.payload.toTileIndex] = action.payload.piece;
 
             return { ...state, board: newBoard, legalMoves: [] };
         case 'dragStart':
@@ -60,7 +46,7 @@ const reducer = (state: State, action: Action) => {
 };
 
 export const BoardContext = createContext<[State, Dispatch<Action>]>([
-    { playerToMove: 'white', board: {}, legalMoves: [] },
+    { playerToMove: 'white', board: [], legalMoves: [] },
     () => null,
 ]);
 

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useBoard, useBoardReducer } from './state/useBoardReducer';
 import { Tile } from './Tile';
+import { calculateTileOffset } from './utils';
 
 export const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'];
 export const FILES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 const secondInitBoard = () => {
-    const board: string[] = ['wr', 'wkn', 'wb', 'wq', 'wk', 'wb', 'wkn', 'wr'];
+    const board: string[] = ['wr', 'wkn', 'wb', 'wk', 'wq', 'wb', 'wkn', 'wr'];
     board.push(...Array(8).fill('wp'));
     board.push(...Array(32).fill(''));
     board.push(...Array(8).fill('bp'));
-    board.push('br', 'bkn', 'bb', 'bq', 'bk', 'bb', 'bkn', 'br');
+    board.push('br', 'bkn', 'bb', 'bk', 'bq', 'bb', 'bkn', 'br');
     return board;
 };
 export const INITIAL_BOARD = secondInitBoard();
@@ -53,32 +54,26 @@ const mapInitialPiecePositions = (rank: string, file: string): string => {
     return '';
 };
 
-export const initBoard = () => {
-    const board: Record<string, JSX.Element> = {};
-    RANKS.reverse().flatMap((rank, firstIndex) => {
-        FILES.map((file, index) => {
-            const color = (index + firstIndex) % 2 === 0 ? 'white' : 'black';
-            board[file + rank] = (
-                <Tile
-                    key={file + rank}
-                    piece={mapInitialPiecePositions(rank, file)}
-                    backgroundColor={color}
-                    file={file}
-                    rank={rank}
-                    index={63 - (firstIndex * 8 + index)}
-                ></Tile>
-            );
-        });
-    });
-    return board;
-};
+export const getBackgroundColor = (index: number) =>
+    calculateTileOffset(index) === 0 ? 'white' : 'black'; // magic formula :))
 
 export const Board = () => {
     const [state] = useBoard();
     useEffect(() => {
         console.log(state.legalMoves);
     }, [state]);
-    return <div className="board">{Object.values(state.board)}</div>;
+    return (
+        <div className="board">
+            {state.board.map((piece, index) => (
+                <Tile
+                    key={index}
+                    piece={piece}
+                    backgroundColor={getBackgroundColor(index)}
+                    index={index}
+                ></Tile>
+            ))}
+        </div>
+    );
 };
 
 export default Board;
