@@ -1,17 +1,18 @@
 {
-  "compilerOptions": {
-    "outDir": "./dist/",
-    "sourceMap": true,
-    "module": "commonjs",
-    "lib": ["es2020", "dom", "dom.iterable"],
-    "target": "es5",
-    "jsx": "react",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "typeRoots": ["./types", "node_modules/@types"],
-    "strict": true,
-    "downlevelIteration": true
-  },
-  "include": ["./src/**/*", "sw.js"],
-  "exclude": ["node_modules"]
+    "compilerOptions": {
+        "outDir": "dist",
+        "sourceMap": true,
+        "module": "commonjs",
+        "lib": ["es2020", "dom", "dom.iterable"],
+        "target": "es5",
+        "jsx": "react",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "typeRoots": ["./types", "node_modules/@types"],
+        "strict": true,
+        "downlevelIteration": true,
+        "declaration": true
+    },
+    "include": ["src"],
+    "exclude": ["node_modules"]
 }
