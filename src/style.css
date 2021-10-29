@@ -1,16 +1,3 @@
-html {
-    box-sizing: border-box;
-    font-size: 62.5%;
-}
-
-*,
-*:before,
-*:after {
-    box-sizing: inherit;
-    margin: 0;
-    padding: 0;
-}
-
 .tile {
     width: 12.5%;
     height: 12.5%;
@@ -47,17 +34,4 @@ html {
 .draggable-wrapper {
     transform: translate(0, 0);
     cursor: grab;
-}
-
-.header {
-    height: 10vh;
-    display: flex;
-    justify-content: left;
-    align-items: center;
-    width: 100vw;
-    padding-left: 10%;
-}
-
-.logo {
-    transform: scale(1.5);
 }
