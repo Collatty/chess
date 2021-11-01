@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Props } from './Chess';
 import { useBoard, useBoardReducer } from './state/useBoardReducer';
 import { Tile } from './Tile';
 import { calculateTileOffset } from './utils';
@@ -19,20 +20,29 @@ export const INITIAL_BOARD = initBoard();
 export const getBackgroundColor = (index: number) =>
     calculateTileOffset(index) === 0 ? 'white' : 'black'; // magic formula :))
 
-export const Board = () => {
+export const Board = ({ primaryPlayer }: Props) => {
     const [state] = useBoard();
     return (
         <div className="board">
-            {state.board
-                .map((piece, index) => (
-                    <Tile
-                        key={index}
-                        piece={piece}
-                        backgroundColor={getBackgroundColor(index)}
-                        index={index}
-                    ></Tile>
-                ))
-                .reverse()}
+            {primaryPlayer === 'white'
+                ? state.board
+                      .map((piece, index) => (
+                          <Tile
+                              key={index}
+                              piece={piece}
+                              backgroundColor={getBackgroundColor(index)}
+                              index={index}
+                          ></Tile>
+                      ))
+                      .reverse()
+                : state.board.map((piece, index) => (
+                      <Tile
+                          key={index}
+                          piece={piece}
+                          backgroundColor={getBackgroundColor(index)}
+                          index={index}
+                      ></Tile>
+                  ))}
         </div>
     );
 };

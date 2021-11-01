@@ -4,16 +4,17 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Board } from './Board';
 import { BoardContext, useBoardReducer } from './state/useBoardReducer';
 
-export const Chess = () => {
+export interface Props {
+    primaryPlayer: 'black' | 'white';
+}
+
+export const Chess = ({ primaryPlayer = 'white' }: Props) => {
     const [state, dispatch] = useBoardReducer();
 
     return (
         <DndProvider backend={HTML5Backend}>
             <BoardContext.Provider value={[state, dispatch]}>
-                <div className="chess">
-                    <h1 className="header-primary">Collatty chess</h1>
-                    <Board></Board>
-                </div>
+                <Board primaryPlayer={primaryPlayer}></Board>
             </BoardContext.Provider>
         </DndProvider>
     );
