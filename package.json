@@ -9,7 +9,8 @@
     ],
     "scripts": {
         "test": "echo \"No tests implemented \" ",
-        "build": "tsc && cp src/style.css dist/style.css"
+        "build": "tsc && cp src/style.css dist/style.css",
+        "publish:local": "npm run build && cp $(npm pack) ../published-collatty-chess/test.tgz && cd ../published-collatty-chess && rm -rf package && tar -xvzf test.tgz && cd package && npm link  "
     },
     "repository": {
         "type": "git",
