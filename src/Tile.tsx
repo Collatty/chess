@@ -16,6 +16,7 @@ import WhiteQueen from './pieces/WhiteQueen';
 import BlackKing from './pieces/BlackKing';
 import WhiteKing from './pieces/WhiteKing';
 import { useBoard } from './state/useBoardReducer';
+import { PromotionMenu } from './PromotionMenu';
 
 const pieceSwitch = (piece?: string): JSX.Element => {
     switch (piece) {
@@ -53,7 +54,7 @@ export interface DraggablePiece {
     fromIndex: number;
 }
 
-const DraggablePiece = (piece: string, fromIndex: number) => {
+const DraggablePiece = ({ piece, fromIndex }: DraggablePiece) => {
     const [state, dispatch] = useBoard();
     const [{ isDragging }, drag] = useDrag(
         {
@@ -97,19 +98,54 @@ const DraggablePiece = (piece: string, fromIndex: number) => {
 
 export const Tile = ({ piece, backgroundColor, index }: ITile) => {
     const [state, dispatch] = useBoard();
+    const [menu, setMenu] = useState<JSX.Element | null>(null);
 
     const [_, drop] = useDrop(
         () => ({
             accept: 'PIECE',
             drop: (item: DraggablePiece) => {
-                dispatch({
-                    type: 'move',
-                    payload: {
-                        piece: item.piece,
-                        fromTileIndex: item.fromIndex,
-                        toTileIndex: index,
-                    },
-                });
+                console.log(item, index);
+
+                if (
+                    item.piece[1] === 'p' &&
+                    ([0, 1, 2, 3, 4, 5, 6, 7].includes(index) ||
+                        [63, 62, 61, 60, 59, 58, 57, 56].includes(index))
+                ) {
+                    dispatch({
+                        type: 'clearTile',
+                        payload: {
+                            piece: '',
+                            fromTileIndex: item.fromIndex,
+                            toTileIndex: -1,
+                        },
+                    });
+                    const menu = (
+                        <PromotionMenu
+                            color={item.piece[0]}
+                            selectedPiece={(piece: string) => {
+                                dispatch({
+                                    type: 'move',
+                                    payload: {
+                                        piece: item.piece[0] + piece,
+                                        fromTileIndex: item.fromIndex,
+                                        toTileIndex: index,
+                                    },
+                                });
+                                setMenu(null);
+                            }}
+                        ></PromotionMenu>
+                    );
+                    setMenu(menu);
+                } else {
+                    dispatch({
+                        type: 'move',
+                        payload: {
+                            piece: item.piece,
+                            fromTileIndex: item.fromIndex,
+                            toTileIndex: index,
+                        },
+                    });
+                }
             },
             canDrop: () => state.legalMoves.includes(index),
         }),
@@ -118,7 +154,18 @@ export const Tile = ({ piece, backgroundColor, index }: ITile) => {
 
     return (
         <div className={`tile ${backgroundColor}`} ref={drop} role={'Tile'}>
-            {DraggablePiece(piece, index)}
+            {menu}
+            {menu ? (
+                <div style={{ opacity: 0.3 }}>
+                    {[0, 1, 2, 3, 4, 5, 6, 7].includes(index) ? (
+                        <BlackPawn></BlackPawn>
+                    ) : (
+                        <WhitePawn></WhitePawn>
+                    )}
+                </div>
+            ) : (
+                <DraggablePiece piece={piece} fromIndex={index} />
+            )}
             {state.legalMoves.includes(index) && <div>Drop</div>}
         </div>
     );

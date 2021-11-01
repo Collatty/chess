@@ -1,6 +1,7 @@
 .tile {
     width: 12.5%;
     height: 12.5%;
+    position: relative;
 }
 
 .black {
@@ -23,4 +24,20 @@
 .draggable-wrapper {
     transform: translate(0, 0);
     cursor: grab;
+}
+
+.promotion-menu__wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 200%;
+    position: absolute;
+    transform: translateX(-25%) translateY(-120%);
+
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: rgba(100, 100, 111, 0.5) 0px 3px 15px 0px;
+}
+
+.menu-item:hover {
+    filter: brightness(80%);
 }

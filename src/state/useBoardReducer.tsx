@@ -20,7 +20,7 @@ export interface Payload {
 }
 
 interface Action {
-    type: 'move' | 'dragStart' | 'dragStop';
+    type: 'move' | 'dragStart' | 'dragStop' | 'clearTile';
     payload: Payload;
 }
 
@@ -160,6 +160,10 @@ const reducer = (state: State, { type, payload }: Action) => {
             return { ...state, legalMoves };
         case 'dragStop':
             return { ...state, legalMoves: [] };
+        case 'clearTile':
+            const board = [...state.board];
+            board[payload.fromTileIndex] = '';
+            return { ...state, board };
         default:
             return state;
     }

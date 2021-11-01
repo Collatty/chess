@@ -5,7 +5,7 @@ import { Board } from './Board';
 import { BoardContext, useBoardReducer } from './state/useBoardReducer';
 
 export interface Props {
-    primaryPlayer: 'black' | 'white';
+    primaryPlayer?: 'black' | 'white';
 }
 
 export const Chess = ({ primaryPlayer = 'white' }: Props) => {
