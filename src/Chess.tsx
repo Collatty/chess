@@ -6,15 +6,19 @@ import { BoardContext, useBoardReducer } from './state/useBoardReducer';
 
 export interface Props {
     primaryPlayer?: 'black' | 'white';
+    autoQueen?: boolean;
 }
 
-export const Chess = ({ primaryPlayer = 'white' }: Props) => {
+export const Chess = ({ primaryPlayer = 'white', autoQueen }: Props) => {
     const [state, dispatch] = useBoardReducer();
 
     return (
         <DndProvider backend={HTML5Backend}>
             <BoardContext.Provider value={[state, dispatch]}>
-                <Board primaryPlayer={primaryPlayer}></Board>
+                <Board
+                    primaryPlayer={primaryPlayer}
+                    autoQueen={autoQueen}
+                ></Board>
             </BoardContext.Provider>
         </DndProvider>
     );

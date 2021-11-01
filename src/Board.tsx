@@ -20,7 +20,7 @@ export const INITIAL_BOARD = initBoard();
 export const getBackgroundColor = (index: number) =>
     calculateTileOffset(index) === 0 ? 'white' : 'black'; // magic formula :))
 
-export const Board = ({ primaryPlayer }: Props) => {
+export const Board = ({ primaryPlayer, autoQueen = false }: Props) => {
     const [state] = useBoard();
     return (
         <div className="board">
@@ -32,6 +32,7 @@ export const Board = ({ primaryPlayer }: Props) => {
                               piece={piece}
                               backgroundColor={getBackgroundColor(index)}
                               index={index}
+                              autoQueen={autoQueen}
                           ></Tile>
                       ))
                       .reverse()
@@ -41,6 +42,7 @@ export const Board = ({ primaryPlayer }: Props) => {
                           piece={piece}
                           backgroundColor={getBackgroundColor(index)}
                           index={index}
+                          autoQueen={autoQueen}
                       ></Tile>
                   ))}
         </div>

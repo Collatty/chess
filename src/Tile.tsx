@@ -96,7 +96,12 @@ const DraggablePiece = ({ piece, fromIndex }: DraggablePiece) => {
     );
 };
 
-export const Tile = ({ piece, backgroundColor, index }: ITile) => {
+export const Tile = ({
+    piece,
+    backgroundColor,
+    index,
+    autoQueen = false,
+}: ITile) => {
     const [state, dispatch] = useBoard();
     const [menu, setMenu] = useState<JSX.Element | null>(null);
 
@@ -111,31 +116,42 @@ export const Tile = ({ piece, backgroundColor, index }: ITile) => {
                     ([0, 1, 2, 3, 4, 5, 6, 7].includes(index) ||
                         [63, 62, 61, 60, 59, 58, 57, 56].includes(index))
                 ) {
-                    dispatch({
-                        type: 'clearTile',
-                        payload: {
-                            piece: '',
-                            fromTileIndex: item.fromIndex,
-                            toTileIndex: -1,
-                        },
-                    });
-                    const menu = (
-                        <PromotionMenu
-                            color={item.piece[0]}
-                            selectedPiece={(piece: string) => {
-                                dispatch({
-                                    type: 'move',
-                                    payload: {
-                                        piece: item.piece[0] + piece,
-                                        fromTileIndex: item.fromIndex,
-                                        toTileIndex: index,
-                                    },
-                                });
-                                setMenu(null);
-                            }}
-                        ></PromotionMenu>
-                    );
-                    setMenu(menu);
+                    if (autoQueen) {
+                        dispatch({
+                            type: 'move',
+                            payload: {
+                                piece: item.piece[0] + 'q',
+                                fromTileIndex: item.fromIndex,
+                                toTileIndex: index,
+                            },
+                        });
+                    } else {
+                        dispatch({
+                            type: 'clearTile',
+                            payload: {
+                                piece: '',
+                                fromTileIndex: item.fromIndex,
+                                toTileIndex: -1,
+                            },
+                        });
+                        const menu = (
+                            <PromotionMenu
+                                color={item.piece[0]}
+                                selectedPiece={(piece: string) => {
+                                    dispatch({
+                                        type: 'move',
+                                        payload: {
+                                            piece: item.piece[0] + piece,
+                                            fromTileIndex: item.fromIndex,
+                                            toTileIndex: index,
+                                        },
+                                    });
+                                    setMenu(null);
+                                }}
+                            ></PromotionMenu>
+                        );
+                        setMenu(menu);
+                    }
                 } else {
                     dispatch({
                         type: 'move',
