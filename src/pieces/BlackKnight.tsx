@@ -8,7 +8,7 @@ const BlackKnight = () => (
         width="100%"
         height="100%"
     >
-        <g opacity="1" fill-rule="evenodd" stroke="#000000" stroke-width="1">
+        <g opacity="1" fillRule="evenodd" stroke="#000000" strokeWidth="1">
             <path
                 d="M 22,10 C 32.5,11 38.5,18 38,39 L 15,39 C 15,30 25,32.5 23,18"
                 fill="#000"
