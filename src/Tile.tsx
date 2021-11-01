@@ -55,7 +55,7 @@ export interface DraggablePiece {
 }
 
 const DraggablePiece = ({ piece, fromIndex }: DraggablePiece) => {
-    const [state, dispatch] = useBoard();
+    const [_, dispatch] = useBoard();
     const [{ isDragging }, drag] = useDrag(
         {
             type: 'PIECE',

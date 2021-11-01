@@ -14,7 +14,11 @@ interface Props {
 }
 
 export const PromotionMenu = ({ color, selectedPiece }: Props) => (
-    <div className="promotion-menu__wrapper">
+    <div
+        className={`promotion-menu__wrapper ${
+            color === 'w' ? 'white' : 'black'
+        }`}
+    >
         <div className="menu-item" onClick={() => selectedPiece('r')}>
             {color === 'w' ? <WhiteRook /> : <BlackRook />}
         </div>
