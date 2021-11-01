@@ -2,6 +2,7 @@ import { calculateTileOffset } from './../utils';
 import { Payload, State, makeMove } from '../state/useBoardReducer';
 
 export const getLegalMoves = (state: State, payload: Payload): number[] => {
+    if (!(state.playerToMove[0] === payload.piece[0])) return [];
     const allPossibleMovesForPiece = calculateAllMovesForPiece(state, payload);
 
     return allPossibleMovesForPiece.filter((move) => {

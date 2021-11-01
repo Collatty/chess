@@ -38,6 +38,7 @@ export const useBoardReducer = () =>
 
 export const makeMove = (state: State, payload: Payload): State => {
     const newBoard = [...state.board];
+    const playerToMove = payload.piece[0] === 'w' ? 'black' : 'white';
 
     newBoard[payload.fromTileIndex] = '';
     newBoard[payload.toTileIndex] = payload.piece;
@@ -90,6 +91,7 @@ export const makeMove = (state: State, payload: Payload): State => {
                 legalMoves: [],
                 enPassantTileIndex,
                 whiteCastleShort: false,
+                playerToMove,
             };
         case 3:
             return {
@@ -99,6 +101,7 @@ export const makeMove = (state: State, payload: Payload): State => {
                 enPassantTileIndex,
                 whiteCastleShort: false,
                 whiteCastleLong: false,
+                playerToMove,
             };
         case 7:
             return {
@@ -107,6 +110,7 @@ export const makeMove = (state: State, payload: Payload): State => {
                 legalMoves: [],
                 enPassantTileIndex,
                 whiteCastleLong: false,
+                playerToMove,
             };
         case 56:
             return {
@@ -115,6 +119,7 @@ export const makeMove = (state: State, payload: Payload): State => {
                 legalMoves: [],
                 enPassantTileIndex,
                 blackCastleShort: false,
+                playerToMove,
             };
         case 59:
             return {
@@ -124,6 +129,7 @@ export const makeMove = (state: State, payload: Payload): State => {
                 enPassantTileIndex,
                 blackCastleShort: false,
                 blackCastleLong: false,
+                playerToMove,
             };
         case 63:
             return {
@@ -132,6 +138,7 @@ export const makeMove = (state: State, payload: Payload): State => {
                 legalMoves: [],
                 enPassantTileIndex,
                 blackCastleLong: false,
+                playerToMove,
             };
         default:
             return {
@@ -139,6 +146,7 @@ export const makeMove = (state: State, payload: Payload): State => {
                 board: newBoard,
                 legalMoves: [],
                 enPassantTileIndex,
+                playerToMove,
             };
     }
 };
