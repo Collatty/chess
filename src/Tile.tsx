@@ -120,7 +120,6 @@ export const Tile = ({ piece, backgroundColor, index }: ITile) => {
         <div className={`tile ${backgroundColor}`} ref={drop} role={'Tile'}>
             {DraggablePiece(piece, index)}
             {state.legalMoves.includes(index) && <div>Drop</div>}
-            {index}
         </div>
     );
 };

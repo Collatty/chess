@@ -4,8 +4,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Board } from './Board';
 import { BoardContext, useBoardReducer } from './state/useBoardReducer';
 
-//hello world
-
 export const Chess = () => {
     const [state, dispatch] = useBoardReducer();
 
