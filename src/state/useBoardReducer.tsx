@@ -12,6 +12,8 @@ export interface State {
     blackCastleLong: boolean;
     whiteCastleShort: boolean;
     whiteCastleLong: boolean;
+    plyWithoutPawnAdvanceOrCapture: number;
+    fullMoves: number;
     fenString: string;
 }
 
@@ -37,6 +39,8 @@ export const useBoardReducer = () =>
         whiteCastleShort: true,
         whiteCastleLong: true,
         fenString: '',
+        plyWithoutPawnAdvanceOrCapture: 0,
+        fullMoves: 1,
     });
 
 export const makeMove = (state: State, payload: Payload): State => {
@@ -157,8 +161,21 @@ export const makeMove = (state: State, payload: Payload): State => {
 const reducer = (state: State, { type, payload }: Action) => {
     switch (type) {
         case 'move':
-            const newState = makeMove(state, payload);
-            return { ...newState, fenString: buildFenString(newState) };
+            const movedState = makeMove(state, payload);
+            const isCaptureOrPawnMove =
+                state.board[payload.toTileIndex] !== '' ||
+                payload.piece[1] === 'p';
+            return {
+                ...movedState,
+                fenString: buildFenString(movedState),
+                fullMoves:
+                    movedState.playerToMove === 'white'
+                        ? movedState.fullMoves + 1
+                        : movedState.fullMoves,
+                plyWithoutPawnAdvanceOrCapture: isCaptureOrPawnMove
+                    ? 0
+                    : state.plyWithoutPawnAdvanceOrCapture + 1,
+            };
         case 'dragStart':
             const legalMoves = getLegalMoves(state, payload);
             return { ...state, legalMoves };
@@ -184,6 +201,8 @@ export const BoardContext = createContext<[State, Dispatch<Action>]>([
         whiteCastleLong: true,
         whiteCastleShort: true,
         fenString: '',
+        plyWithoutPawnAdvanceOrCapture: 0,
+        fullMoves: 0,
     },
     () => null,
 ]);

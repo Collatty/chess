@@ -183,6 +183,7 @@ export const Tile = ({
                 <DraggablePiece piece={piece} fromIndex={index} />
             )}
             {state.legalMoves.includes(index) && <div>Drop</div>}
+            {index}
         </div>
     );
 };

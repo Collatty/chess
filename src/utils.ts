@@ -6,7 +6,6 @@ export const calculateTileOffset = (index: number) =>
 
 export const buildFenString = (state: State): string => {
     const {
-        board,
         playerToMove,
         blackCastleLong,
         blackCastleShort,
@@ -14,10 +13,25 @@ export const buildFenString = (state: State): string => {
         whiteCastleShort,
         enPassantTileIndex,
     } = state;
+    const board = [...state.board];
     let fenString = '';
+    let counter = 0;
     board.reverse().forEach((piece, index) => {
-        if (index !== 0 && index % 8 === 0) fenString += '/';
-        fenString += piece;
+        if (index !== 0 && index % 8 === 0) {
+            if (counter > 0) {
+                fenString += counter;
+            }
+            fenString += '/';
+            counter = 0;
+        }
+        if (piece === '') {
+            counter += 1;
+        } else {
+            counter
+                ? (fenString += counter + fenStringPieceMapper(piece))
+                : (fenString += fenStringPieceMapper(piece));
+            counter = 0;
+        }
     });
     fenString += ' ';
     playerToMove === 'white' ? (fenString += 'w') : (fenString += 'b');
@@ -39,12 +53,45 @@ export const buildFenString = (state: State): string => {
     }
     fenString += ' ';
     if (enPassantTileIndex > 0) {
-        const file = FILES.at(~~(enPassantTileIndex / 8)) || 'a';
-        const rank = (enPassantTileIndex % 8) + 1;
+        const file = FILES.at(7 - (enPassantTileIndex % 8)) || '';
+        const rank = ~~(enPassantTileIndex / 8) + 1;
         fenString += file.toLowerCase() + rank;
+    } else {
+        fenString += '-';
     }
     fenString += ' ';
     fenString += '1 2'; //TODO
 
     return fenString;
+};
+
+const fenStringPieceMapper = (piece: string) => {
+    switch (piece) {
+        case 'wp':
+            return 'P';
+        case 'bp':
+            return 'p';
+        case 'wkn':
+            return 'N';
+        case 'bkn':
+            return 'n';
+        case 'wb':
+            return 'B';
+        case 'bb':
+            return 'b';
+        case 'wq':
+            return 'Q';
+        case 'bq':
+            return 'q';
+        case 'wk':
+            return 'K';
+        case 'bk':
+            return 'k';
+        case 'wr':
+            return 'R';
+        case 'br':
+            return 'r';
+        default:
+            return '';
+    }
 };
