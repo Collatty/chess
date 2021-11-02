@@ -1,6 +1,7 @@
 import { createContext, Dispatch, useContext, useReducer } from 'react';
 import { INITIAL_BOARD } from '../Board';
 import { getLegalMoves, getEnPassantTileIndex } from '../logic/rules';
+import { buildFenString } from '../utils';
 
 export interface State {
     playerToMove: 'white' | 'black';
@@ -11,6 +12,7 @@ export interface State {
     blackCastleLong: boolean;
     whiteCastleShort: boolean;
     whiteCastleLong: boolean;
+    fenString: string;
 }
 
 export interface Payload {
@@ -19,7 +21,7 @@ export interface Payload {
     toTileIndex: number;
 }
 
-interface Action {
+export interface Action {
     type: 'move' | 'dragStart' | 'dragStop' | 'clearTile';
     payload: Payload;
 }
@@ -34,6 +36,7 @@ export const useBoardReducer = () =>
         blackCastleLong: true,
         whiteCastleShort: true,
         whiteCastleLong: true,
+        fenString: '',
     });
 
 export const makeMove = (state: State, payload: Payload): State => {
@@ -154,7 +157,8 @@ export const makeMove = (state: State, payload: Payload): State => {
 const reducer = (state: State, { type, payload }: Action) => {
     switch (type) {
         case 'move':
-            return makeMove(state, payload);
+            const newState = makeMove(state, payload);
+            return { ...newState, fenString: buildFenString(newState) };
         case 'dragStart':
             const legalMoves = getLegalMoves(state, payload);
             return { ...state, legalMoves };
@@ -179,6 +183,7 @@ export const BoardContext = createContext<[State, Dispatch<Action>]>([
         blackCastleLong: true,
         whiteCastleLong: true,
         whiteCastleShort: true,
+        fenString: '',
     },
     () => null,
 ]);

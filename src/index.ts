@@ -1,3 +1,5 @@
 import { Chess } from './Chess';
+import { useBoardReducer } from './state/useBoardReducer';
 import './style.css';
-export { Chess };
+export { useBoardReducer };
+export default Chess;
