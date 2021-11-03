@@ -1,5 +1,10 @@
-import { State } from './state/useBoardReducer';
-import { RANKS, FILES } from './Board';
+import { State } from './types';
+
+export const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'];
+export const FILES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+export const getBackgroundColor = (index: number) =>
+    calculateTileOffset(index) === 0 ? 'white' : 'black';
 
 export const calculateTileOffset = (index: number) =>
     (index + ~~(index / 8)) % 2;

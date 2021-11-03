@@ -3,7 +3,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Board } from './Board';
 import { BoardContext, useBoardReducer } from './state/useBoardReducer';
-import type { Action, State } from './state/useBoardReducer';
+import type { Action, State } from './types';
 
 export interface Props {
     primaryPlayer?: 'black' | 'white';

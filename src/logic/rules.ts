@@ -1,5 +1,6 @@
 import { calculateTileOffset } from './../utils';
-import { Payload, State, makeMove } from '../state/useBoardReducer';
+import { makeMove } from '../state/useBoardReducer';
+import { Payload, State } from '../types';
 
 export const getLegalMoves = (state: State, payload: Payload): number[] => {
     if (!(state.playerToMove[0] === payload.piece[0])) return [];

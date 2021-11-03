@@ -1,47 +1,33 @@
 import { createContext, Dispatch, useContext, useReducer } from 'react';
-import { INITIAL_BOARD } from '../Board';
 import { getLegalMoves, getEnPassantTileIndex } from '../logic/rules';
+import { Action, Payload, State } from '../types';
 import { buildFenString } from '../utils';
 
-export interface State {
-    playerToMove: 'white' | 'black';
-    board: string[];
-    legalMoves: number[];
-    enPassantTileIndex: number;
-    blackCastleShort: boolean;
-    blackCastleLong: boolean;
-    whiteCastleShort: boolean;
-    whiteCastleLong: boolean;
-    plyWithoutPawnAdvanceOrCapture: number;
-    fullMoves: number;
-    fenString: string;
-}
+const initBoard = () => {
+    const board: string[] = ['wr', 'wkn', 'wb', 'wk', 'wq', 'wb', 'wkn', 'wr'];
+    board.push(...Array(8).fill('wp'));
+    board.push(...Array(32).fill(''));
+    board.push(...Array(8).fill('bp'));
+    board.push('br', 'bkn', 'bb', 'bk', 'bq', 'bb', 'bkn', 'br');
+    return board;
+};
+const INITIAL_BOARD = initBoard();
 
-export interface Payload {
-    piece: string;
-    fromTileIndex: number;
-    toTileIndex: number;
-}
+const initialState: State = {
+    playerToMove: 'white',
+    board: INITIAL_BOARD,
+    legalMoves: [],
+    enPassantTileIndex: -1,
+    blackCastleShort: true,
+    blackCastleLong: true,
+    whiteCastleShort: true,
+    whiteCastleLong: true,
+    fenString: '',
+    plyWithoutPawnAdvanceOrCapture: 0,
+    fullMoves: 1,
+};
 
-export interface Action {
-    type: 'move' | 'dragStart' | 'dragStop' | 'clearTile';
-    payload: Payload;
-}
-
-export const useBoardReducer = () =>
-    useReducer(reducer, {
-        playerToMove: 'white',
-        board: INITIAL_BOARD,
-        legalMoves: [],
-        enPassantTileIndex: -1,
-        blackCastleShort: true,
-        blackCastleLong: true,
-        whiteCastleShort: true,
-        whiteCastleLong: true,
-        fenString: '',
-        plyWithoutPawnAdvanceOrCapture: 0,
-        fullMoves: 1,
-    });
+export const useBoardReducer = () => useReducer(reducer, initialState);
 
 export const makeMove = (state: State, payload: Payload): State => {
     const newBoard = [...state.board];
@@ -191,19 +177,7 @@ const reducer = (state: State, { type, payload }: Action) => {
 };
 
 export const BoardContext = createContext<[State, Dispatch<Action>]>([
-    {
-        playerToMove: 'white',
-        board: [],
-        legalMoves: [],
-        enPassantTileIndex: -1,
-        blackCastleShort: true,
-        blackCastleLong: true,
-        whiteCastleLong: true,
-        whiteCastleShort: true,
-        fenString: '',
-        plyWithoutPawnAdvanceOrCapture: 0,
-        fullMoves: 0,
-    },
+    initialState,
     () => null,
 ]);
 

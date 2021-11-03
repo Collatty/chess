@@ -1,116 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { useDrag, useDrop, DragPreviewImage } from 'react-dnd';
+import React, { useState } from 'react';
+import { useDrop } from 'react-dnd';
 
-import { ITile } from './types';
+import { TileProps, DraggablePieceProps } from './types';
 import './style.css';
 import BlackPawn from './pieces/BlackPawn';
 import WhitePawn from './pieces/WhitePawn';
-import BlackRook from './pieces/BlackRook';
-import WhiteRook from './pieces/WhiteRook';
-import BlackKnight from './pieces/BlackKnight';
-import WhiteKnight from './pieces/WhiteKnight';
-import BlackBishop from './pieces/BlackBishop';
-import WhiteBishop from './pieces/WhiteBishop';
-import BlackQueen from './pieces/BlackQueen';
-import WhiteQueen from './pieces/WhiteQueen';
-import BlackKing from './pieces/BlackKing';
-import WhiteKing from './pieces/WhiteKing';
 import { useBoard } from './state/useBoardReducer';
 import { PromotionMenu } from './PromotionMenu';
-
-const pieceSwitch = (piece?: string): JSX.Element => {
-    switch (piece) {
-        case 'wp':
-            return <WhitePawn />;
-        case 'bp':
-            return <BlackPawn />;
-        case 'br':
-            return <BlackRook />;
-        case 'wr':
-            return <WhiteRook />;
-        case 'bkn':
-            return <BlackKnight />;
-        case 'wkn':
-            return <WhiteKnight />;
-        case 'bb':
-            return <BlackBishop />;
-        case 'wb':
-            return <WhiteBishop />;
-        case 'bq':
-            return <BlackQueen />;
-        case 'wq':
-            return <WhiteQueen />;
-        case 'bk':
-            return <BlackKing />;
-        case 'wk':
-            return <WhiteKing />;
-        default:
-            return <></>;
-    }
-};
-
-export interface DraggablePiece {
-    piece: string;
-    fromIndex: number;
-}
-
-const DraggablePiece = ({ piece, fromIndex }: DraggablePiece) => {
-    const [_, dispatch] = useBoard();
-    const [{ isDragging }, drag] = useDrag(
-        {
-            type: 'PIECE',
-            item: { piece, fromIndex },
-            collect: (monitor) => ({
-                isDragging: monitor.isDragging(),
-            }),
-        },
-        [piece]
-    );
-
-    useEffect(() => {
-        isDragging
-            ? dispatch({
-                  type: 'dragStart',
-                  payload: {
-                      piece,
-                      toTileIndex: -1,
-                      fromTileIndex: fromIndex,
-                  },
-              })
-            : dispatch({
-                  type: 'dragStop',
-                  payload: {
-                      piece: '',
-                      fromTileIndex: -1,
-                      toTileIndex: -1,
-                  },
-              });
-    }, [isDragging]);
-
-    return (
-        <div className="draggable-wrapper">
-            <div style={{ opacity: isDragging ? 0.3 : 1 }} ref={drag}>
-                {pieceSwitch(piece)}
-            </div>
-        </div>
-    );
-};
+import { DraggablePiece } from './DraggablePiece';
 
 export const Tile = ({
     piece,
     backgroundColor,
     index,
     autoQueen = false,
-}: ITile) => {
+}: TileProps) => {
     const [state, dispatch] = useBoard();
     const [menu, setMenu] = useState<JSX.Element | null>(null);
 
     const [_, drop] = useDrop(
         () => ({
             accept: 'PIECE',
-            drop: (item: DraggablePiece) => {
-                console.log(item, index);
-
+            drop: (item: DraggablePieceProps) => {
                 if (
                     item.piece[1] === 'p' &&
                     ([0, 1, 2, 3, 4, 5, 6, 7].includes(index) ||
