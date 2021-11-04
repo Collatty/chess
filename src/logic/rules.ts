@@ -1,38 +1,36 @@
 import { calculateTileOffset } from './../utils';
 import { makeMove } from '../state/useBoardReducer';
-import { Payload, State } from '../types';
+import { Move, State } from '../types';
 
-export const getLegalMoves = (state: State, payload: Payload): number[] => {
+export const getLegalMoves = (state: State, payload: Move): number[] => {
     if (!(state.playerToMove[0] === payload.piece[0])) return [];
     const allPossibleMovesForPiece = calculateAllMovesForPiece(state, payload);
 
-    return allPossibleMovesForPiece.filter((move) => {
+    return allPossibleMovesForPiece.filter((toTileIndex) => {
         const resultingState = makeMove(state, {
             ...payload,
-            toTileIndex: move,
+            toTileIndex,
         });
-        const allPossibleMovesInResultingState = resultingState.board.flatMap(
-            (piece, index) =>
-                payload.piece[0] !== piece[0]
-                    ? calculateAllMovesForPiece(resultingState, {
-                          piece,
-                          fromTileIndex: index,
-                          toTileIndex: -1,
-                      })
-                    : []
-        );
+        const allPossibleMovesInResultingState =
+            calculateAllMovesInNewStateForPlayer(
+                resultingState,
+                resultingState.playerToMove[0]
+            );
 
         if (
             payload.piece[1] === 'k' &&
-            isSameRank(move, payload.fromTileIndex) &&
-            Math.abs(move - payload.fromTileIndex) === 2
+            isSameRank(toTileIndex, payload.fromTileIndex) &&
+            Math.abs(toTileIndex - payload.fromTileIndex) === 2
         )
             return (
                 !allPossibleMovesInResultingState.includes(
                     resultingState.board.indexOf(payload.piece[0] + 'k')
                 ) &&
                 !allPossibleMovesInResultingState.includes(
-                    (move + payload.fromTileIndex) / 2
+                    (toTileIndex + payload.fromTileIndex) / 2
+                ) &&
+                !allPossibleMovesInResultingState.includes(
+                    state.board.indexOf(payload.piece[0] + 'k')
                 )
             );
         return !allPossibleMovesInResultingState.includes(
@@ -41,7 +39,47 @@ export const getLegalMoves = (state: State, payload: Payload): number[] => {
     });
 };
 
-const calculateAllMovesForPiece = (state: State, payload: Payload) => {
+const calculateAllLegalMovesInStateForPlayer = (state: State, player: string) =>
+    state.board.flatMap((piece, index) =>
+        getLegalMoves(state, { piece, fromTileIndex: index, toTileIndex: -1 })
+    );
+
+export const calculateAllMovesInNewStateForPlayer = (
+    newState: State,
+    player: string
+) =>
+    newState.board.flatMap((piece, index) =>
+        player === piece[0]
+            ? calculateAllMovesForPiece(newState, {
+                  piece,
+                  fromTileIndex: index,
+                  toTileIndex: -1,
+              })
+            : []
+    );
+
+export const isCheck = (newState: State, playerWhoMoved: string) =>
+    calculateAllMovesInNewStateForPlayer(newState, playerWhoMoved).includes(
+        newState.board.indexOf(newState.playerToMove[0] + 'k')
+    );
+
+export const isCheckMate = (newState: State, playerWhoMoved: string) => {
+    const legalMoves = calculateAllLegalMovesInStateForPlayer(
+        newState,
+        playerWhoMoved
+    );
+    return isCheck(newState, playerWhoMoved) && legalMoves.length === 0;
+};
+
+export const isStaleMate = (newState: State, playerWhoMoved: string) => {
+    const legalMoves = calculateAllLegalMovesInStateForPlayer(
+        newState,
+        playerWhoMoved
+    );
+    return !isCheck(newState, playerWhoMoved) && legalMoves.length === 0;
+};
+
+const calculateAllMovesForPiece = (state: State, payload: Move) => {
     const { board, enPassantTileIndex } = state;
     const { piece, fromTileIndex } = payload;
     switch (piece) {
@@ -159,12 +197,14 @@ const getLegalMovesKnight = (
         currentTileIndex - 17,
     ];
 
-    return legalMoves.filter(
-        (targetTileIndex) =>
-            !isOccupiedByFriendlyPiece(targetTileIndex, board, piece) &&
-            calculateTileOffset(targetTileIndex) !==
-                calculateTileOffset(currentTileIndex)
-    );
+    return legalMoves
+        .filter(
+            (targetTileIndex) =>
+                !isOccupiedByFriendlyPiece(targetTileIndex, board, piece) &&
+                calculateTileOffset(targetTileIndex) !==
+                    calculateTileOffset(currentTileIndex)
+        )
+        .filter((index) => index > 0 && index < 63);
 };
 
 const getLegalMovesQueen = (
@@ -198,10 +238,12 @@ const getLegalMovesKing = (
 
     legalMoves.push(...getCastlingMoves(currentTileIndex, piece, state));
 
-    return legalMoves.filter(
-        (targetTileIndex) =>
-            !isOccupiedByFriendlyPiece(targetTileIndex, state.board, piece)
-    );
+    return legalMoves
+        .filter(
+            (targetTileIndex) =>
+                !isOccupiedByFriendlyPiece(targetTileIndex, state.board, piece)
+        )
+        .filter((index) => index > 0 && index < 63);
 };
 
 const getCastlingMoves = (
@@ -349,7 +391,7 @@ export const getEnPassantTileIndex = ({
     piece,
     fromTileIndex,
     toTileIndex,
-}: Payload) => {
+}: Move) => {
     return piece[1] === 'p' && Math.abs(fromTileIndex - toTileIndex) === 16
         ? piece[0] === 'w'
             ? fromTileIndex + 8

@@ -70,6 +70,72 @@ export const buildFenString = (state: State): string => {
     return fenString;
 };
 
+export const generateStateFromFenString = (fenString: string): State => {
+    const [
+        boardString,
+        playerToMove,
+        castling,
+        enPassant,
+        halfMoves,
+        fullMoves,
+    ] = fenString.split(' ');
+    const board: string[] = [...boardString]
+        .filter((char) => char !== '/')
+        .flatMap((char) => {
+            if (parseInt(char)) {
+                return Array(parseInt(char)).fill('');
+            }
+            return fromFenStringToPieceMapper(char);
+        })
+        .reverse();
+
+    return {
+        board,
+        playerToMove: playerToMove === 'w' ? 'white' : 'black',
+        enPassantTileIndex: enPassant === '-' ? -1 : mapTileToIndex(enPassant),
+        blackCastleLong: castling.includes('q'),
+        blackCastleShort: castling.includes('k'),
+        whiteCastleLong: castling.includes('Q'),
+        whiteCastleShort: castling.includes('K'),
+        plyWithoutPawnAdvanceOrCapture: parseInt(halfMoves),
+        fullMoves: parseInt(fullMoves),
+        legalMoves: [],
+        fenString,
+        isCheck: false, //TODO
+        isCheckMate: false, // TODO
+        isStaleMate: false, // TODO
+    };
+};
+
+const fromFenStringToPieceMapper = (fenPiece: string) => {
+    switch (fenPiece) {
+        case 'p':
+            return 'bp';
+        case 'P':
+            return 'wp';
+        case 'r':
+            return 'br';
+        case 'R':
+            return 'wr';
+        case 'n':
+            return 'bkn';
+        case 'N':
+            return 'wkn';
+        case 'b':
+            return 'bb';
+        case 'B':
+            return 'wb';
+        case 'q':
+            return 'bq';
+        case 'Q':
+            return 'wq';
+        case 'k':
+            return 'bk';
+        case 'K':
+            return 'wk';
+    }
+};
+
 const fenStringPieceMapper = (piece: string) => {
     switch (piece) {
         case 'wp':
@@ -100,3 +166,6 @@ const fenStringPieceMapper = (piece: string) => {
             return '';
     }
 };
+
+const mapTileToIndex = (tile: string): number =>
+    7 - FILES.indexOf(tile[0].toUpperCase()) + (parseInt(tile[1]) - 1) * 8;

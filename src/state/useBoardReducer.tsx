@@ -1,7 +1,13 @@
 import { createContext, Dispatch, useContext, useReducer } from 'react';
-import { getLegalMoves, getEnPassantTileIndex } from '../logic/rules';
-import { Action, Payload, State } from '../types';
-import { buildFenString } from '../utils';
+import {
+    getLegalMoves,
+    getEnPassantTileIndex,
+    isCheck,
+    isCheckMate,
+    isStaleMate,
+} from '../logic/rules';
+import { Action, FenString, Move, State } from '../types';
+import { buildFenString, generateStateFromFenString } from '../utils';
 
 const initBoard = () => {
     const board: string[] = ['wr', 'wkn', 'wb', 'wk', 'wq', 'wb', 'wkn', 'wr'];
@@ -22,14 +28,17 @@ const initialState: State = {
     blackCastleLong: true,
     whiteCastleShort: true,
     whiteCastleLong: true,
-    fenString: '',
+    fenString: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     plyWithoutPawnAdvanceOrCapture: 0,
     fullMoves: 1,
+    isCheck: false,
+    isCheckMate: false,
+    isStaleMate: false,
 };
 
 export const useBoardReducer = () => useReducer(reducer, initialState);
 
-export const makeMove = (state: State, payload: Payload): State => {
+export const makeMove = (state: State, payload: Move): State => {
     const newBoard = [...state.board];
     const playerToMove = payload.piece[0] === 'w' ? 'black' : 'white';
 
@@ -147,10 +156,10 @@ export const makeMove = (state: State, payload: Payload): State => {
 const reducer = (state: State, { type, payload }: Action) => {
     switch (type) {
         case 'move':
-            const movedState = makeMove(state, payload);
+            const movedState = makeMove(state, payload as Move);
             const isCaptureOrPawnMove =
-                state.board[payload.toTileIndex] !== '' ||
-                payload.piece[1] === 'p';
+                state.board[(payload as Move).toTileIndex] !== '' ||
+                (payload as Move).piece[1] === 'p';
             return {
                 ...movedState,
                 fenString: buildFenString(movedState),
@@ -161,16 +170,27 @@ const reducer = (state: State, { type, payload }: Action) => {
                 plyWithoutPawnAdvanceOrCapture: isCaptureOrPawnMove
                     ? 0
                     : state.plyWithoutPawnAdvanceOrCapture + 1,
+                isCheck: isCheck(movedState, (payload as Move).piece[0]),
+                isCheckMate: isCheckMate(
+                    movedState,
+                    (payload as Move).piece[0]
+                ),
+                isStaleMate: isStaleMate(
+                    movedState,
+                    (payload as Move).piece[0]
+                ),
             };
         case 'dragStart':
-            const legalMoves = getLegalMoves(state, payload);
+            const legalMoves = getLegalMoves(state, payload as Move);
             return { ...state, legalMoves };
         case 'dragStop':
             return { ...state, legalMoves: [] };
         case 'clearTile':
             const board = [...state.board];
-            board[payload.fromTileIndex] = '';
+            board[(payload as Move).fromTileIndex] = '';
             return { ...state, board };
+        case 'setStateFromFenString':
+            return generateStateFromFenString((payload as FenString).fenString);
         default:
             return state;
     }

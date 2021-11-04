@@ -17,17 +17,29 @@ export interface State {
     plyWithoutPawnAdvanceOrCapture: number;
     fullMoves: number;
     fenString: string;
+    isCheck: boolean;
+    isCheckMate: boolean;
+    isStaleMate: boolean;
 }
 
-export interface Payload {
+export interface Move {
     piece: string;
     fromTileIndex: number;
     toTileIndex: number;
 }
 
 export interface Action {
-    type: 'move' | 'dragStart' | 'dragStop' | 'clearTile';
-    payload: Payload;
+    type:
+        | 'move'
+        | 'dragStart'
+        | 'dragStop'
+        | 'clearTile'
+        | 'setStateFromFenString';
+    payload: Move | FenString;
+}
+
+export interface FenString {
+    fenString: string;
 }
 
 export interface DraggablePieceProps {
