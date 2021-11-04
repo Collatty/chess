@@ -9,12 +9,14 @@ export interface Props {
     primaryPlayer?: 'black' | 'white';
     autoQueen?: boolean;
     externalStateHandler?: [State, React.Dispatch<Action>];
+    highlightLegalMoves?: boolean;
 }
 
 export const Chess = ({
-    primaryPlayer = 'white',
+    primaryPlayer,
     autoQueen,
     externalStateHandler,
+    highlightLegalMoves,
 }: Props) => {
     const [state, dispatch] = useBoardReducer();
 
@@ -26,6 +28,7 @@ export const Chess = ({
                 <Board
                     primaryPlayer={primaryPlayer}
                     autoQueen={autoQueen}
+                    highlightLegalMoves={highlightLegalMoves}
                 ></Board>
             </BoardContext.Provider>
         </DndProvider>

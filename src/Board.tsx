@@ -4,7 +4,11 @@ import { useBoard } from './state/useBoardReducer';
 import { Tile } from './Tile';
 import { getBackgroundColor } from './utils';
 
-export const Board = ({ primaryPlayer, autoQueen = false }: Props) => {
+export const Board = ({
+    primaryPlayer = 'white',
+    autoQueen = false,
+    highlightLegalMoves = true,
+}: Props) => {
     const [state] = useBoard();
     return (
         <div className="board">
@@ -17,6 +21,7 @@ export const Board = ({ primaryPlayer, autoQueen = false }: Props) => {
                               backgroundColor={getBackgroundColor(index)}
                               index={index}
                               autoQueen={autoQueen}
+                              highlightLegalMoves={highlightLegalMoves}
                           ></Tile>
                       ))
                       .reverse()
@@ -27,6 +32,7 @@ export const Board = ({ primaryPlayer, autoQueen = false }: Props) => {
                           backgroundColor={getBackgroundColor(index)}
                           index={index}
                           autoQueen={autoQueen}
+                          highlightLegalMoves={highlightLegalMoves}
                       ></Tile>
                   ))}
         </div>

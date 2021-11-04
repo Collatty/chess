@@ -3,6 +3,7 @@ export interface TileProps {
     backgroundColor: string;
     index: number;
     autoQueen: boolean;
+    highlightLegalMoves: boolean;
 }
 
 export interface State {

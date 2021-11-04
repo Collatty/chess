@@ -13,7 +13,8 @@ export const Tile = ({
     piece,
     backgroundColor,
     index,
-    autoQueen = false,
+    autoQueen,
+    highlightLegalMoves,
 }: TileProps) => {
     const [state, dispatch] = useBoard();
     const [menu, setMenu] = useState<JSX.Element | null>(null);
@@ -93,8 +94,9 @@ export const Tile = ({
             ) : (
                 <DraggablePiece piece={piece} fromIndex={index} />
             )}
-            {state.legalMoves.includes(index) && <div>Drop</div>}
-            {index}
+            {highlightLegalMoves && state.legalMoves.includes(index) && (
+                <div className="legal-move"></div>
+            )}
         </div>
     );
 };

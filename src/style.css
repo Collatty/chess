@@ -44,3 +44,14 @@
 .white .menu-item:hover {
     filter: brightness(80%);
 }
+
+.legal-move {
+    position: absolute;
+    width: 20%;
+    height: 20%;
+    background-color: grey;
+    border-radius: 50%;
+    opacity: 50%;
+    top: 40%;
+    left: 40%;
+}
