@@ -1,7 +1,7 @@
 import { State } from './types';
 
-export const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'];
-export const FILES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'];
+const FILES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export const getBackgroundColor = (index: number) =>
     calculateTileOffset(index) === 0 ? 'white' : 'black';
@@ -58,7 +58,7 @@ export const buildFenString = (state: State): string => {
     }
     fenString += ' ';
     if (enPassantTileIndex > 0) {
-        const file = FILES.at(7 - (enPassantTileIndex % 8)) || '';
+        const file = FILES[7 - (enPassantTileIndex % 8)] || '';
         const rank = ~~(enPassantTileIndex / 8) + 1;
         fenString += file.toLowerCase() + rank;
     } else {
