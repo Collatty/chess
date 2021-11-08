@@ -54,9 +54,9 @@ const App = () => {
            const move = await getMoveFromFancyAI(state.fenString)
            dispatch({type: 'move',  move})
        }
-       if (state.playerToMove !== primaryPlayer) makeAIMove()
+       if (state.boardState.playerToMove !== primaryPlayer) makeAIMove()
 
-   }, [state.fenString, state.playerToMove]);
+   }, [state.gameState.fenString, state.boardState.playerToMove]);
 
    return (
            <div
