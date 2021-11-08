@@ -1,4 +1,5 @@
-import { State } from './types';
+import { isCheck, isCheckMate, isStaleMate } from './logic/rules';
+import { BoardState, State } from './types';
 
 const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'];
 const FILES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
@@ -9,7 +10,7 @@ export const getBackgroundColor = (index: number) =>
 export const calculateTileOffset = (index: number) =>
     (index + ~~(index / 8)) % 2;
 
-export const buildFenString = (state: State): string => {
+export const buildFenString = (boardState: BoardState): string => {
     const {
         playerToMove,
         blackCastleLong,
@@ -17,8 +18,8 @@ export const buildFenString = (state: State): string => {
         whiteCastleLong,
         whiteCastleShort,
         enPassantTileIndex,
-    } = state;
-    const board = [...state.board];
+    } = boardState;
+    const board = [...boardState.board];
     let fenString = '';
     let counter = 0;
     board.reverse().forEach((piece, index) => {
@@ -89,7 +90,7 @@ export const generateStateFromFenString = (fenString: string): State => {
         })
         .reverse();
 
-    return {
+    const boardState: BoardState = {
         board,
         playerToMove: playerToMove === 'w' ? 'white' : 'black',
         enPassantTileIndex: enPassant === '-' ? -1 : mapTileToIndex(enPassant),
@@ -100,10 +101,22 @@ export const generateStateFromFenString = (fenString: string): State => {
         plyWithoutPawnAdvanceOrCapture: parseInt(halfMoves),
         fullMoves: parseInt(fullMoves),
         legalMoves: [],
-        fenString,
-        isCheck: false, //TODO
-        isCheckMate: false, // TODO
-        isStaleMate: false, // TODO
+    };
+
+    return {
+        boardState,
+        gameState: {
+            fenString,
+            isCheck: isCheck(boardState, playerToMove === 'w' ? 'b' : 'w'),
+            isCheckMate: isCheckMate(
+                boardState,
+                playerToMove === 'w' ? 'b' : 'w'
+            ),
+            isStaleMate: isStaleMate(
+                boardState,
+                playerToMove === 'w' ? 'b' : 'w'
+            ),
+        },
     };
 };
 

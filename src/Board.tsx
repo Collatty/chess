@@ -9,7 +9,8 @@ export const Board = ({
     autoQueen = false,
     highlightLegalMoves = true,
 }: Props) => {
-    const [state] = useBoard();
+    const [fullState] = useBoard();
+    const { boardState: state } = fullState;
     return (
         <div className="board">
             {primaryPlayer === 'white'

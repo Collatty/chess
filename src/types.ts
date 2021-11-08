@@ -7,6 +7,11 @@ export interface TileProps {
 }
 
 export interface State {
+    boardState: BoardState;
+    gameState: GameState;
+}
+
+export interface BoardState {
     playerToMove: 'white' | 'black';
     board: string[];
     legalMoves: number[];
@@ -17,6 +22,9 @@ export interface State {
     whiteCastleLong: boolean;
     plyWithoutPawnAdvanceOrCapture: number;
     fullMoves: number;
+}
+
+export interface GameState {
     fenString: string;
     isCheck: boolean;
     isCheckMate: boolean;

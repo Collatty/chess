@@ -16,8 +16,9 @@ export const Tile = ({
     autoQueen,
     highlightLegalMoves,
 }: TileProps) => {
-    const [state, dispatch] = useBoard();
+    const [fullState, dispatch] = useBoard();
     const [menu, setMenu] = useState<JSX.Element | null>(null);
+    const { boardState: state } = fullState;
 
     const [_, drop] = useDrop(
         () => ({

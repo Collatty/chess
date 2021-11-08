@@ -6,7 +6,7 @@ import {
     isCheckMate,
     isStaleMate,
 } from '../logic/rules';
-import { Action, FenString, Move, State } from '../types';
+import { Action, BoardState, FenString, Move, State } from '../types';
 import { buildFenString, generateStateFromFenString } from '../utils';
 
 const initBoard = () => {
@@ -20,32 +20,36 @@ const initBoard = () => {
 const INITIAL_BOARD = initBoard();
 
 const initialState: State = {
-    playerToMove: 'white',
-    board: INITIAL_BOARD,
-    legalMoves: [],
-    enPassantTileIndex: -1,
-    blackCastleShort: true,
-    blackCastleLong: true,
-    whiteCastleShort: true,
-    whiteCastleLong: true,
-    fenString: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    plyWithoutPawnAdvanceOrCapture: 0,
-    fullMoves: 1,
-    isCheck: false,
-    isCheckMate: false,
-    isStaleMate: false,
+    boardState: {
+        playerToMove: 'white',
+        board: INITIAL_BOARD,
+        legalMoves: [],
+        enPassantTileIndex: -1,
+        blackCastleShort: true,
+        blackCastleLong: true,
+        whiteCastleShort: true,
+        whiteCastleLong: true,
+        plyWithoutPawnAdvanceOrCapture: 0,
+        fullMoves: 1,
+    },
+    gameState: {
+        fenString: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        isCheck: false,
+        isCheckMate: false,
+        isStaleMate: false,
+    },
 };
 
 export const useBoardReducer = () => useReducer(reducer, initialState);
 
-export const makeMove = (state: State, payload: Move): State => {
-    const newBoard = [...state.board];
+export const makeMove = (boardState: BoardState, payload: Move): BoardState => {
+    const newBoard = [...boardState.board];
     const playerToMove = payload.piece[0] === 'w' ? 'black' : 'white';
 
     newBoard[payload.fromTileIndex] = '';
     newBoard[payload.toTileIndex] = payload.piece;
 
-    if (payload.toTileIndex === state.enPassantTileIndex) {
+    if (payload.toTileIndex === boardState.enPassantTileIndex) {
         payload.piece[0] === 'w'
             ? (newBoard[payload.toTileIndex - 8] = '')
             : (newBoard[payload.toTileIndex + 8] = '');
@@ -88,7 +92,7 @@ export const makeMove = (state: State, payload: Move): State => {
     switch (payload.fromTileIndex) {
         case 0:
             return {
-                ...state,
+                ...boardState,
                 board: newBoard,
                 legalMoves: [],
                 enPassantTileIndex,
@@ -97,7 +101,7 @@ export const makeMove = (state: State, payload: Move): State => {
             };
         case 3:
             return {
-                ...state,
+                ...boardState,
                 board: newBoard,
                 legalMoves: [],
                 enPassantTileIndex,
@@ -107,7 +111,7 @@ export const makeMove = (state: State, payload: Move): State => {
             };
         case 7:
             return {
-                ...state,
+                ...boardState,
                 board: newBoard,
                 legalMoves: [],
                 enPassantTileIndex,
@@ -116,7 +120,7 @@ export const makeMove = (state: State, payload: Move): State => {
             };
         case 56:
             return {
-                ...state,
+                ...boardState,
                 board: newBoard,
                 legalMoves: [],
                 enPassantTileIndex,
@@ -125,7 +129,7 @@ export const makeMove = (state: State, payload: Move): State => {
             };
         case 59:
             return {
-                ...state,
+                ...boardState,
                 board: newBoard,
                 legalMoves: [],
                 enPassantTileIndex,
@@ -135,7 +139,7 @@ export const makeMove = (state: State, payload: Move): State => {
             };
         case 63:
             return {
-                ...state,
+                ...boardState,
                 board: newBoard,
                 legalMoves: [],
                 enPassantTileIndex,
@@ -144,7 +148,7 @@ export const makeMove = (state: State, payload: Move): State => {
             };
         default:
             return {
-                ...state,
+                ...boardState,
                 board: newBoard,
                 legalMoves: [],
                 enPassantTileIndex,
@@ -153,42 +157,55 @@ export const makeMove = (state: State, payload: Move): State => {
     }
 };
 
-const reducer = (state: State, { type, payload }: Action) => {
+const reducer = (state: State, { type, payload }: Action): State => {
     switch (type) {
         case 'move':
-            const movedState = makeMove(state, payload as Move);
+            const movedState = makeMove(state.boardState, payload as Move);
             const isCaptureOrPawnMove =
-                state.board[(payload as Move).toTileIndex] !== '' ||
+                state.boardState.board[(payload as Move).toTileIndex] !== '' ||
                 (payload as Move).piece[1] === 'p';
             return {
-                ...movedState,
-                fenString: buildFenString(movedState),
-                fullMoves:
-                    movedState.playerToMove === 'white'
-                        ? movedState.fullMoves + 1
-                        : movedState.fullMoves,
-                plyWithoutPawnAdvanceOrCapture: isCaptureOrPawnMove
-                    ? 0
-                    : state.plyWithoutPawnAdvanceOrCapture + 1,
-                isCheck: isCheck(movedState, (payload as Move).piece[0]),
-                isCheckMate: isCheckMate(
-                    movedState,
-                    (payload as Move).piece[0]
-                ),
-                isStaleMate: isStaleMate(
-                    movedState,
-                    (payload as Move).piece[0]
-                ),
+                boardState: {
+                    ...movedState,
+                    fullMoves:
+                        movedState.playerToMove === 'white'
+                            ? movedState.fullMoves + 1
+                            : movedState.fullMoves,
+                    plyWithoutPawnAdvanceOrCapture: isCaptureOrPawnMove
+                        ? 0
+                        : state.boardState.plyWithoutPawnAdvanceOrCapture + 1,
+                },
+                gameState: {
+                    fenString: buildFenString(movedState),
+                    isCheck: isCheck(movedState, (payload as Move).piece[0]),
+                    isCheckMate: isCheckMate(
+                        movedState,
+                        (payload as Move).piece[0]
+                    ),
+                    isStaleMate: isStaleMate(
+                        movedState,
+                        (payload as Move).piece[0]
+                    ),
+                },
             };
         case 'dragStart':
-            const legalMoves = getLegalMoves(state, payload as Move);
-            return { ...state, legalMoves };
+            const legalMoves = getLegalMoves(state.boardState, payload as Move);
+            return {
+                gameState: state.gameState,
+                boardState: { ...state.boardState, legalMoves: legalMoves },
+            };
         case 'dragStop':
-            return { ...state, legalMoves: [] };
+            return {
+                gameState: state.gameState,
+                boardState: { ...state.boardState, legalMoves: [] },
+            };
         case 'clearTile':
-            const board = [...state.board];
+            const board = [...state.boardState.board];
             board[(payload as Move).fromTileIndex] = '';
-            return { ...state, board };
+            return {
+                gameState: state.gameState,
+                boardState: { ...state.boardState, board },
+            };
         case 'setStateFromFenString':
             return generateStateFromFenString((payload as FenString).fenString);
         default:
