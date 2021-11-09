@@ -1,7 +1,7 @@
 {
     "name": "@collatty/chess",
     "version": "3.0.0",
-    "description": "Chess client ",
+    "description": "React chess client",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
