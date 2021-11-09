@@ -72,7 +72,7 @@ const App = () => {
                    autoQueen={true}
                    externalStateHandler={[state, dispatch]}
                    highlightLegalMoves={true}
-               ></Chess>
+               />
            </div>
 
    );
