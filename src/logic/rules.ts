@@ -226,7 +226,7 @@ const getLegalMovesKnight = (
                 calculateTileOffset(targetTileIndex) !==
                     calculateTileOffset(currentTileIndex)
         )
-        .filter((index) => index > 0 && index < 63);
+        .filter((index) => index >= 0 && index <= 63);
 };
 
 const getLegalMovesQueen = (
@@ -269,7 +269,7 @@ const getLegalMovesKing = (
                     piece
                 )
         )
-        .filter((index) => index > 0 && index < 63);
+        .filter((index) => index >= 0 && index <= 63);
 };
 
 const getCastlingMoves = (
