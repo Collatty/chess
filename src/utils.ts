@@ -71,7 +71,9 @@ export const buildFenString = (boardState: BoardState): string => {
     return fenString;
 };
 
-export const generateStateFromFenString = (fenString: string): State => {
+export const generateBoardStateFromFenString = (
+    fenString: string
+): BoardState => {
     const [
         boardString,
         playerToMove,
@@ -90,7 +92,7 @@ export const generateStateFromFenString = (fenString: string): State => {
         })
         .reverse();
 
-    const boardState: BoardState = {
+    return {
         board,
         playerToMove: playerToMove === 'w' ? 'white' : 'black',
         enPassantTileIndex: enPassant === '-' ? -1 : mapTileToIndex(enPassant),
@@ -101,22 +103,6 @@ export const generateStateFromFenString = (fenString: string): State => {
         plyWithoutPawnAdvanceOrCapture: parseInt(halfMoves),
         fullMoves: parseInt(fullMoves),
         legalMoves: [],
-    };
-
-    return {
-        boardState,
-        gameState: {
-            fenString,
-            isCheck: isCheck(boardState, playerToMove === 'w' ? 'b' : 'w'),
-            isCheckMate: isCheckMate(
-                boardState,
-                playerToMove === 'w' ? 'b' : 'w'
-            ),
-            isStaleMate: isStaleMate(
-                boardState,
-                playerToMove === 'w' ? 'b' : 'w'
-            ),
-        },
     };
 };
 

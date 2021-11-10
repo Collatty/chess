@@ -7,7 +7,7 @@ import {
     isStaleMate,
 } from '../logic/rules';
 import { Action, BoardState, FenString, Move, State } from '../types';
-import { buildFenString, generateStateFromFenString } from '../utils';
+import { buildFenString, generateBoardStateFromFenString } from '../utils';
 
 const initBoard = () => {
     const board: string[] = ['wr', 'wkn', 'wb', 'wk', 'wq', 'wb', 'wkn', 'wr'];
@@ -34,9 +34,13 @@ const initialState: State = {
     },
     gameState: {
         fenString: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        history: ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'],
         isCheck: false,
         isCheckMate: false,
         isStaleMate: false,
+        isThreefoldRepetitionDraw: false,
+        isFiftyMoveRuleDraw: false,
+        isDrawClaimed: false,
     },
 };
 
@@ -157,37 +161,58 @@ export const makeMove = (boardState: BoardState, payload: Move): BoardState => {
     }
 };
 
+const isThreefoldRepetitionDraw = (history: string[]): boolean => {
+    console.log(history);
+
+    return (
+        [...history.slice(0, history.length - 1)].filter(
+            (fen) => fen.split(' ')[0] === history.slice(-1)[0].split(' ')[0]
+        ).length >= 2
+    );
+};
+
 const reducer = (state: State, { type, payload }: Action): State => {
     switch (type) {
-        case 'move':
+        case 'move': {
             const movedState = makeMove(state.boardState, payload as Move);
             const isCaptureOrPawnMove =
                 state.boardState.board[(payload as Move).toTileIndex] !== '' ||
                 (payload as Move).piece[1] === 'p';
+            const newBoardState = {
+                ...movedState,
+                fullMoves:
+                    movedState.playerToMove === 'white'
+                        ? movedState.fullMoves + 1
+                        : movedState.fullMoves,
+                plyWithoutPawnAdvanceOrCapture: isCaptureOrPawnMove
+                    ? 0
+                    : state.boardState.plyWithoutPawnAdvanceOrCapture + 1,
+            };
+
+            const fenString = buildFenString(newBoardState);
+            const history = [...state.gameState.history, fenString];
             return {
-                boardState: {
-                    ...movedState,
-                    fullMoves:
-                        movedState.playerToMove === 'white'
-                            ? movedState.fullMoves + 1
-                            : movedState.fullMoves,
-                    plyWithoutPawnAdvanceOrCapture: isCaptureOrPawnMove
-                        ? 0
-                        : state.boardState.plyWithoutPawnAdvanceOrCapture + 1,
-                },
+                boardState: newBoardState,
                 gameState: {
-                    fenString: buildFenString(movedState),
-                    isCheck: isCheck(movedState, (payload as Move).piece[0]),
+                    ...state.gameState,
+                    fenString,
+                    isCheck: isCheck(newBoardState, (payload as Move).piece[0]),
                     isCheckMate: isCheckMate(
-                        movedState,
+                        newBoardState,
                         (payload as Move).piece[0]
                     ),
                     isStaleMate: isStaleMate(
-                        movedState,
+                        newBoardState,
                         (payload as Move).piece[0]
                     ),
+                    history,
+                    isThreefoldRepetitionDraw:
+                        isThreefoldRepetitionDraw(history),
+                    isFiftyMoveRuleDraw:
+                        parseInt(fenString.split(' ')[-2]) >= 50,
                 },
             };
+        }
         case 'dragStart':
             const legalMoves = getLegalMoves(state.boardState, payload as Move);
             return {
@@ -199,15 +224,59 @@ const reducer = (state: State, { type, payload }: Action): State => {
                 gameState: state.gameState,
                 boardState: { ...state.boardState, legalMoves: [] },
             };
-        case 'clearTile':
+        case 'clearTile': {
             const board = [...state.boardState.board];
             board[(payload as Move).fromTileIndex] = '';
             return {
                 gameState: state.gameState,
                 boardState: { ...state.boardState, board },
             };
-        case 'setStateFromFenString':
-            return generateStateFromFenString((payload as FenString).fenString);
+        }
+        case 'setStateFromFenString': {
+            const boardState = generateBoardStateFromFenString(
+                (payload as FenString).fenString
+            );
+            const history: string[] = [
+                ...state.gameState.history,
+                (payload as FenString).fenString,
+            ];
+            return {
+                boardState: boardState,
+                gameState: {
+                    ...state.gameState,
+                    fenString: (payload as FenString).fenString,
+                    isCheck: isCheck(
+                        boardState,
+                        boardState.playerToMove === 'white' ? 'b' : 'w'
+                    ),
+                    isCheckMate: isCheckMate(
+                        boardState,
+                        boardState.playerToMove === 'white' ? 'b' : 'w'
+                    ),
+                    isStaleMate: isStaleMate(
+                        boardState,
+                        boardState.playerToMove === 'white' ? 'b' : 'w'
+                    ),
+                    history,
+                    isThreefoldRepetitionDraw:
+                        isThreefoldRepetitionDraw(history),
+                    isFiftyMoveRuleDraw:
+                        parseInt(
+                            (payload as FenString).fenString.split(' ')[-2]
+                        ) >= 50,
+                },
+            };
+        }
+        case 'reset':
+            return initialState;
+        case 'claimDraw':
+            return {
+                boardState: state.boardState,
+                gameState: {
+                    ...state.gameState,
+                    isDrawClaimed: true,
+                },
+            };
         default:
             return state;
     }
