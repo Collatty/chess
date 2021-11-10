@@ -26,9 +26,13 @@ export interface BoardState {
 
 export interface GameState {
     fenString: string;
+    history: string[];
     isCheck: boolean;
     isCheckMate: boolean;
     isStaleMate: boolean;
+    isThreefoldRepetitionDraw: boolean;
+    isFiftyMoveRuleDraw: boolean;
+    isDrawClaimed: boolean;
 }
 
 export interface Move {
@@ -43,8 +47,10 @@ export interface Action {
         | 'dragStart'
         | 'dragStop'
         | 'clearTile'
-        | 'setStateFromFenString';
-    payload: Move | FenString;
+        | 'setStateFromFenString'
+        | 'reset'
+        | 'claimDraw';
+    payload: Move | FenString | null;
 }
 
 export interface FenString {
