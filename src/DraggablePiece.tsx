@@ -13,7 +13,7 @@ import WhitePawn from './pieces/WhitePawn';
 import WhiteQueen from './pieces/WhiteQueen';
 import WhiteRook from './pieces/WhiteRook';
 import { useBoard } from './state/useBoardReducer';
-import { DraggablePieceProps } from './types';
+import { MovingPieceProps } from './types';
 
 export const pieceSwitch = (piece?: string): JSX.Element => {
     switch (piece) {
@@ -46,8 +46,8 @@ export const pieceSwitch = (piece?: string): JSX.Element => {
     }
 };
 
-export const DraggablePiece = ({ piece, fromIndex }: DraggablePieceProps) => {
-    const [_, dispatch] = useBoard();
+export const DraggablePiece = ({ piece, fromIndex }: MovingPieceProps) => {
+    const [state, dispatch] = useBoard();
     const [{ isDragging }, drag] = useDrag(
         {
             type: 'PIECE',
@@ -62,7 +62,7 @@ export const DraggablePiece = ({ piece, fromIndex }: DraggablePieceProps) => {
     useEffect(() => {
         isDragging
             ? dispatch({
-                  type: 'dragStart',
+                  type: 'selectPiece',
                   payload: {
                       piece,
                       toTileIndex: -1,
@@ -70,17 +70,33 @@ export const DraggablePiece = ({ piece, fromIndex }: DraggablePieceProps) => {
                   },
               })
             : dispatch({
-                  type: 'dragStop',
-                  payload: {
-                      piece: '',
-                      fromTileIndex: -1,
-                      toTileIndex: -1,
-                  },
+                  type: 'unselectPiece',
+                  payload: null,
               });
     }, [isDragging]);
 
     return (
-        <div className="draggable-wrapper">
+        <div
+            className="draggable-wrapper"
+            onClick={(e) => {
+                e.stopPropagation();
+                if (state.boardState.selectedPieceTileIndex !== fromIndex) {
+                    dispatch({
+                        type: 'selectPiece',
+                        payload: {
+                            piece,
+                            toTileIndex: -1,
+                            fromTileIndex: fromIndex,
+                        },
+                    });
+                } else {
+                    dispatch({
+                        type: 'unselectPiece',
+                        payload: null,
+                    });
+                }
+            }}
+        >
             <div style={{ opacity: isDragging ? 0.3 : 1 }} ref={drag}>
                 {pieceSwitch(piece)}
             </div>

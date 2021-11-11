@@ -1,4 +1,3 @@
-import { isGameOver } from './utils';
 export interface TileProps {
     piece: string;
     backgroundColor: string;
@@ -25,6 +24,7 @@ export interface BoardState {
     whiteCastleLong: boolean;
     plyWithoutPawnAdvanceOrCapture: number;
     fullMoves: number;
+    selectedPieceTileIndex: number;
 }
 
 export interface GameState {
@@ -48,8 +48,8 @@ export interface Move {
 export interface Action {
     type:
         | 'move'
-        | 'dragStart'
-        | 'dragStop'
+        | 'selectPiece'
+        | 'unselectPiece'
         | 'clearTile'
         | 'setStateFromFenString'
         | 'reset'
@@ -63,7 +63,7 @@ export interface FenString {
     fenString: string;
 }
 
-export interface DraggablePieceProps {
+export interface MovingPieceProps {
     piece: string;
     fromIndex: number;
 }

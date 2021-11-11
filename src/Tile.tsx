@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDrop } from 'react-dnd';
 
-import { TileProps, DraggablePieceProps } from './types';
+import { TileProps, MovingPieceProps } from './types';
 import './style.css';
 import BlackPawn from './pieces/BlackPawn';
 import WhitePawn from './pieces/WhitePawn';
 import { useBoard } from './state/useBoardReducer';
 import { PromotionMenu } from './PromotionMenu';
 import { DraggablePiece, pieceSwitch } from './DraggablePiece';
-import { isGameOver } from './utils';
 
 export const Tile = ({
     piece,
@@ -22,69 +21,83 @@ export const Tile = ({
     const [menu, setMenu] = useState<JSX.Element | null>(null);
     const { boardState: state } = fullState;
 
+    const handleMoveToTile = (item: MovingPieceProps) => {
+        if (
+            item.piece[1] === 'p' &&
+            ([0, 1, 2, 3, 4, 5, 6, 7].includes(index) ||
+                [63, 62, 61, 60, 59, 58, 57, 56].includes(index))
+        ) {
+            if (autoQueen) {
+                dispatch({
+                    type: 'move',
+                    payload: {
+                        piece: item.piece[0] + 'q',
+                        fromTileIndex: item.fromIndex,
+                        toTileIndex: index,
+                    },
+                });
+            } else {
+                dispatch({
+                    type: 'clearTile',
+                    payload: {
+                        piece: '',
+                        fromTileIndex: item.fromIndex,
+                        toTileIndex: -1,
+                    },
+                });
+                const menu = (
+                    <PromotionMenu
+                        color={item.piece[0]}
+                        selectedPiece={(piece: string) => {
+                            dispatch({
+                                type: 'move',
+                                payload: {
+                                    piece: item.piece[0] + piece,
+                                    fromTileIndex: item.fromIndex,
+                                    toTileIndex: index,
+                                },
+                            });
+                            setMenu(null);
+                        }}
+                    ></PromotionMenu>
+                );
+                setMenu(menu);
+            }
+        } else {
+            dispatch({
+                type: 'move',
+                payload: {
+                    piece: item.piece,
+                    fromTileIndex: item.fromIndex,
+                    toTileIndex: index,
+                },
+            });
+        }
+    };
+
     const [_, drop] = useDrop(
         () => ({
             accept: 'PIECE',
-            drop: (item: DraggablePieceProps) => {
-                if (
-                    item.piece[1] === 'p' &&
-                    ([0, 1, 2, 3, 4, 5, 6, 7].includes(index) ||
-                        [63, 62, 61, 60, 59, 58, 57, 56].includes(index))
-                ) {
-                    if (autoQueen) {
-                        dispatch({
-                            type: 'move',
-                            payload: {
-                                piece: item.piece[0] + 'q',
-                                fromTileIndex: item.fromIndex,
-                                toTileIndex: index,
-                            },
-                        });
-                    } else {
-                        dispatch({
-                            type: 'clearTile',
-                            payload: {
-                                piece: '',
-                                fromTileIndex: item.fromIndex,
-                                toTileIndex: -1,
-                            },
-                        });
-                        const menu = (
-                            <PromotionMenu
-                                color={item.piece[0]}
-                                selectedPiece={(piece: string) => {
-                                    dispatch({
-                                        type: 'move',
-                                        payload: {
-                                            piece: item.piece[0] + piece,
-                                            fromTileIndex: item.fromIndex,
-                                            toTileIndex: index,
-                                        },
-                                    });
-                                    setMenu(null);
-                                }}
-                            ></PromotionMenu>
-                        );
-                        setMenu(menu);
-                    }
-                } else {
-                    dispatch({
-                        type: 'move',
-                        payload: {
-                            piece: item.piece,
-                            fromTileIndex: item.fromIndex,
-                            toTileIndex: index,
-                        },
-                    });
-                }
-            },
+            drop: (item: MovingPieceProps) => handleMoveToTile(item),
             canDrop: () => state.legalMoves.includes(index),
         }),
         [state]
     );
 
     return (
-        <div className={`tile ${backgroundColor}`} ref={drop} role={'Tile'}>
+        <div
+            className={`tile ${backgroundColor}`}
+            ref={drop}
+            role={'Tile'}
+            onClick={() => {
+                state.legalMoves.includes(index)
+                    ? handleMoveToTile({
+                          piece: state.board[state.selectedPieceTileIndex],
+                          fromIndex: state.selectedPieceTileIndex,
+                      })
+                    : dispatch({ type: 'unselectPiece', payload: null });
+            }}
+        >
             {menu}
             {menu ? (
                 <div style={{ opacity: 0.3 }}>

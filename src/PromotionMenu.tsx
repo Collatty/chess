@@ -18,6 +18,7 @@ export const PromotionMenu = ({ color, selectedPiece }: Props) => (
         className={`promotion-menu__wrapper ${
             color === 'w' ? 'white' : 'black'
         }`}
+        onClick={(e) => e.stopPropagation()}
     >
         <div className="menu-item" onClick={() => selectedPiece('r')}>
             {color === 'w' ? <WhiteRook /> : <BlackRook />}

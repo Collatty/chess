@@ -104,6 +104,7 @@ export const generateBoardStateFromFenString = (
         plyWithoutPawnAdvanceOrCapture: parseInt(halfMoves),
         fullMoves: parseInt(fullMoves),
         legalMoves: [],
+        selectedPieceTileIndex: -1,
     };
 };
 

@@ -31,6 +31,7 @@ const initialState: State = {
         whiteCastleLong: true,
         plyWithoutPawnAdvanceOrCapture: 0,
         fullMoves: 1,
+        selectedPieceTileIndex: -1,
     },
     gameState: {
         fenString: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
@@ -198,7 +199,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
             );
             return {
                 ...state,
-                boardState: newBoardState,
+                boardState: { ...newBoardState, selectedPieceTileIndex: -1 },
                 gameState: {
                     ...state.gameState,
                     fenString,
@@ -216,18 +217,26 @@ const reducer = (state: State, { type, payload }: Action): State => {
                 },
             };
         }
-        case 'dragStart':
+        case 'selectPiece':
             const legalMoves = getLegalMoves(state.boardState, payload as Move);
             return {
                 ...state,
                 gameState: state.gameState,
-                boardState: { ...state.boardState, legalMoves: legalMoves },
+                boardState: {
+                    ...state.boardState,
+                    legalMoves: legalMoves,
+                    selectedPieceTileIndex: (payload as Move).fromTileIndex,
+                },
             };
-        case 'dragStop':
+        case 'unselectPiece':
             return {
                 ...state,
                 gameState: state.gameState,
-                boardState: { ...state.boardState, legalMoves: [] },
+                boardState: {
+                    ...state.boardState,
+                    legalMoves: [],
+                    selectedPieceTileIndex: -1,
+                },
             };
         case 'clearTile': {
             const board = [...state.boardState.board];

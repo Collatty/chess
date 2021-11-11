@@ -22,8 +22,6 @@ export const Chess = ({
     highlightLegalMoves,
 }: Props) => {
     const [state, dispatch] = useBoardReducer();
-    console.log(isMobile);
-
     return (
         <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
             <BoardContext.Provider
