@@ -1,3 +1,4 @@
+import { isGameOver } from './utils';
 export interface TileProps {
     piece: string;
     backgroundColor: string;
@@ -35,6 +36,7 @@ export interface GameState {
     isThreefoldRepetitionDraw: boolean;
     isFiftyMoveRuleDraw: boolean;
     isDrawClaimed: boolean;
+    isGameOver: boolean;
 }
 
 export interface Move {

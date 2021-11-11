@@ -97,7 +97,7 @@ export const Tile = ({
             ) : fullState.rewindIndex === -1 ? (
                 piece &&
                 piece[0] === primaryPlayer[0] &&
-                !isGameOver(fullState) ? (
+                !fullState.gameState.isGameOver ? (
                     <DraggablePiece piece={piece} fromIndex={index} />
                 ) : (
                     pieceSwitch(piece)

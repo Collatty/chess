@@ -41,6 +41,7 @@ const initialState: State = {
         isThreefoldRepetitionDraw: false,
         isFiftyMoveRuleDraw: false,
         isDrawClaimed: false,
+        isGameOver: false,
     },
     rewindIndex: -1,
 };
@@ -162,15 +163,10 @@ export const makeMove = (boardState: BoardState, payload: Move): BoardState => {
     }
 };
 
-const isThreefoldRepetitionDraw = (history: string[]): boolean => {
-    console.log(history);
-
-    return (
-        [...history.slice(0, history.length - 1)].filter(
-            (fen) => fen.split(' ')[0] === history.slice(-1)[0].split(' ')[0]
-        ).length >= 2
-    );
-};
+const checkThreefoldRepetitionDraw = (history: string[]): boolean =>
+    [...history.slice(0, history.length - 1)].filter(
+        (fen) => fen.split(' ')[0] === history.slice(-1)[0].split(' ')[0]
+    ).length >= 2;
 
 const reducer = (state: State, { type, payload }: Action): State => {
     switch (type) {
@@ -192,6 +188,14 @@ const reducer = (state: State, { type, payload }: Action): State => {
 
             const fenString = buildFenString(newBoardState);
             const history = [...state.gameState.history, fenString];
+            const checkMate = isCheckMate(
+                newBoardState,
+                (payload as Move).piece[0]
+            );
+            const staleMate = isStaleMate(
+                newBoardState,
+                (payload as Move).piece[0]
+            );
             return {
                 ...state,
                 boardState: newBoardState,
@@ -199,17 +203,14 @@ const reducer = (state: State, { type, payload }: Action): State => {
                     ...state.gameState,
                     fenString,
                     isCheck: isCheck(newBoardState, (payload as Move).piece[0]),
-                    isCheckMate: isCheckMate(
-                        newBoardState,
-                        (payload as Move).piece[0]
-                    ),
-                    isStaleMate: isStaleMate(
-                        newBoardState,
-                        (payload as Move).piece[0]
-                    ),
+                    isCheckMate: checkMate,
+                    isStaleMate: staleMate,
+                    isGameOver:
+                        checkMate || staleMate || state.gameState.isDrawClaimed,
                     history,
                     isThreefoldRepetitionDraw:
-                        isThreefoldRepetitionDraw(history),
+                        checkThreefoldRepetitionDraw(history),
+
                     isFiftyMoveRuleDraw:
                         parseInt(fenString.split(' ')[-2]) >= 50,
                 },
@@ -238,34 +239,39 @@ const reducer = (state: State, { type, payload }: Action): State => {
             };
         }
         case 'setStateFromFenString': {
-            const boardState = generateBoardStateFromFenString(
+            const newBoardState = generateBoardStateFromFenString(
                 (payload as FenString).fenString
             );
             const history: string[] = [
                 ...state.gameState.history,
                 (payload as FenString).fenString,
             ];
+
+            const checkMate = isCheckMate(
+                newBoardState,
+                newBoardState.playerToMove === 'white' ? 'b' : 'w'
+            );
+            const staleMate = isStaleMate(
+                newBoardState,
+                newBoardState.playerToMove === 'white' ? 'b' : 'w'
+            );
             return {
                 ...state,
-                boardState: boardState,
+                boardState: newBoardState,
                 gameState: {
                     ...state.gameState,
                     fenString: (payload as FenString).fenString,
                     isCheck: isCheck(
-                        boardState,
-                        boardState.playerToMove === 'white' ? 'b' : 'w'
+                        newBoardState,
+                        newBoardState.playerToMove === 'white' ? 'b' : 'w'
                     ),
-                    isCheckMate: isCheckMate(
-                        boardState,
-                        boardState.playerToMove === 'white' ? 'b' : 'w'
-                    ),
-                    isStaleMate: isStaleMate(
-                        boardState,
-                        boardState.playerToMove === 'white' ? 'b' : 'w'
-                    ),
+                    isCheckMate: checkMate,
+                    isStaleMate: staleMate,
+                    isGameOver:
+                        checkMate || staleMate || state.gameState.isDrawClaimed,
                     history,
                     isThreefoldRepetitionDraw:
-                        isThreefoldRepetitionDraw(history),
+                        checkThreefoldRepetitionDraw(history),
                     isFiftyMoveRuleDraw:
                         parseInt(
                             (payload as FenString).fenString.split(' ')[-2]
