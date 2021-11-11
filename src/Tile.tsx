@@ -7,7 +7,8 @@ import BlackPawn from './pieces/BlackPawn';
 import WhitePawn from './pieces/WhitePawn';
 import { useBoard } from './state/useBoardReducer';
 import { PromotionMenu } from './PromotionMenu';
-import { DraggablePiece } from './DraggablePiece';
+import { DraggablePiece, pieceSwitch } from './DraggablePiece';
+import { isGameOver } from './utils';
 
 export const Tile = ({
     piece,
@@ -15,6 +16,7 @@ export const Tile = ({
     index,
     autoQueen,
     highlightLegalMoves,
+    primaryPlayer,
 }: TileProps) => {
     const [fullState, dispatch] = useBoard();
     const [menu, setMenu] = useState<JSX.Element | null>(null);
@@ -92,8 +94,16 @@ export const Tile = ({
                         <WhitePawn></WhitePawn>
                     )}
                 </div>
+            ) : fullState.rewindIndex === -1 ? (
+                piece &&
+                piece[0] === primaryPlayer[0] &&
+                !isGameOver(fullState) ? (
+                    <DraggablePiece piece={piece} fromIndex={index} />
+                ) : (
+                    pieceSwitch(piece)
+                )
             ) : (
-                <DraggablePiece piece={piece} fromIndex={index} />
+                pieceSwitch(piece)
             )}
             {highlightLegalMoves && state.legalMoves.includes(index) && (
                 <div className="legal-move"></div>

@@ -4,11 +4,13 @@ export interface TileProps {
     index: number;
     autoQueen: boolean;
     highlightLegalMoves: boolean;
+    primaryPlayer: 'white' | 'black';
 }
 
 export interface State {
     boardState: BoardState;
     gameState: GameState;
+    rewindIndex: number;
 }
 
 export interface BoardState {
@@ -49,7 +51,9 @@ export interface Action {
         | 'clearTile'
         | 'setStateFromFenString'
         | 'reset'
-        | 'claimDraw';
+        | 'claimDraw'
+        | 'rewindMove'
+        | 'forwardMove';
     payload: Move | FenString | null;
 }
 

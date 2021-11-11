@@ -15,7 +15,7 @@ import WhiteRook from './pieces/WhiteRook';
 import { useBoard } from './state/useBoardReducer';
 import { DraggablePieceProps } from './types';
 
-const pieceSwitch = (piece?: string): JSX.Element => {
+export const pieceSwitch = (piece?: string): JSX.Element => {
     switch (piece) {
         case 'wp':
             return <WhitePawn />;

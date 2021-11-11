@@ -42,6 +42,7 @@ const initialState: State = {
         isFiftyMoveRuleDraw: false,
         isDrawClaimed: false,
     },
+    rewindIndex: -1,
 };
 
 export const useBoardReducer = () => useReducer(reducer, initialState);
@@ -192,6 +193,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
             const fenString = buildFenString(newBoardState);
             const history = [...state.gameState.history, fenString];
             return {
+                ...state,
                 boardState: newBoardState,
                 gameState: {
                     ...state.gameState,
@@ -216,11 +218,13 @@ const reducer = (state: State, { type, payload }: Action): State => {
         case 'dragStart':
             const legalMoves = getLegalMoves(state.boardState, payload as Move);
             return {
+                ...state,
                 gameState: state.gameState,
                 boardState: { ...state.boardState, legalMoves: legalMoves },
             };
         case 'dragStop':
             return {
+                ...state,
                 gameState: state.gameState,
                 boardState: { ...state.boardState, legalMoves: [] },
             };
@@ -228,6 +232,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
             const board = [...state.boardState.board];
             board[(payload as Move).fromTileIndex] = '';
             return {
+                ...state,
                 gameState: state.gameState,
                 boardState: { ...state.boardState, board },
             };
@@ -241,6 +246,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
                 (payload as FenString).fenString,
             ];
             return {
+                ...state,
                 boardState: boardState,
                 gameState: {
                     ...state.gameState,
@@ -271,11 +277,26 @@ const reducer = (state: State, { type, payload }: Action): State => {
             return initialState;
         case 'claimDraw':
             return {
+                ...state,
                 boardState: state.boardState,
                 gameState: {
                     ...state.gameState,
                     isDrawClaimed: true,
                 },
+            };
+        case 'forwardMove':
+            return {
+                ...state,
+                rewindIndex:
+                    state.rewindIndex === -1 ? -1 : state.rewindIndex + 1,
+            };
+        case 'rewindMove':
+            return {
+                ...state,
+                rewindIndex:
+                    state.rewindIndex <= -state.gameState.history.length
+                        ? state.rewindIndex
+                        : state.rewindIndex - 1,
             };
         default:
             return state;

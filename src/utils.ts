@@ -168,3 +168,8 @@ const fenStringPieceMapper = (piece: string) => {
 
 const mapTileToIndex = (tile: string): number =>
     7 - FILES.indexOf(tile[0].toUpperCase()) + (parseInt(tile[1]) - 1) * 8;
+
+export const isGameOver = (state: State) =>
+    state.gameState.isCheckMate ||
+    state.gameState.isStaleMate ||
+    state.gameState.isDrawClaimed;
