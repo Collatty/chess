@@ -39,6 +39,7 @@ export const buildFenString = (boardState: BoardState): string => {
             counter = 0;
         }
     });
+    if (counter) fenString += counter;
     fenString += ' ';
     playerToMove === 'white' ? (fenString += 'w') : (fenString += 'b');
     fenString += ' ';
