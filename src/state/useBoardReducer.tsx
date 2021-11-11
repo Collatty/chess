@@ -288,6 +288,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
                 gameState: {
                     ...state.gameState,
                     isDrawClaimed: true,
+                    isGameOver: true,
                 },
             };
         case 'forwardMove':
