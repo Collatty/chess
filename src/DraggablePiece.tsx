@@ -56,7 +56,7 @@ export const DraggablePiece = ({ piece, fromIndex }: MovingPieceProps) => {
                 isDragging: monitor.isDragging(),
             }),
         },
-        [piece]
+        [piece],
     );
 
     useEffect(() => {

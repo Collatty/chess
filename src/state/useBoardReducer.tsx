@@ -166,7 +166,7 @@ export const makeMove = (boardState: BoardState, payload: Move): BoardState => {
 
 const checkThreefoldRepetitionDraw = (history: string[]): boolean =>
     [...history.slice(0, history.length - 1)].filter(
-        (fen) => fen.split(' ')[0] === history.slice(-1)[0].split(' ')[0]
+        (fen) => fen.split(' ')[0] === history.slice(-1)[0].split(' ')[0],
     ).length >= 2;
 
 const reducer = (state: State, { type, payload }: Action): State => {
@@ -191,11 +191,11 @@ const reducer = (state: State, { type, payload }: Action): State => {
             const history = [...state.gameState.history, fenString];
             const checkMate = isCheckMate(
                 newBoardState,
-                (payload as Move).piece[0]
+                (payload as Move).piece[0],
             );
             const staleMate = isStaleMate(
                 newBoardState,
-                (payload as Move).piece[0]
+                (payload as Move).piece[0],
             );
             return {
                 ...state,
@@ -217,7 +217,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
                 },
             };
         }
-        case 'selectPiece':
+        case 'selectPiece': {
             const legalMoves = getLegalMoves(state.boardState, payload as Move);
             return {
                 ...state,
@@ -228,6 +228,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
                     selectedPieceTileIndex: (payload as Move).fromTileIndex,
                 },
             };
+        }
         case 'unselectPiece':
             return {
                 ...state,
@@ -249,7 +250,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
         }
         case 'setStateFromFenString': {
             const newBoardState = generateBoardStateFromFenString(
-                (payload as FenString).fenString
+                (payload as FenString).fenString,
             );
             const history: string[] = [
                 ...state.gameState.history,
@@ -258,11 +259,11 @@ const reducer = (state: State, { type, payload }: Action): State => {
 
             const checkMate = isCheckMate(
                 newBoardState,
-                newBoardState.playerToMove === 'white' ? 'b' : 'w'
+                newBoardState.playerToMove === 'white' ? 'b' : 'w',
             );
             const staleMate = isStaleMate(
                 newBoardState,
-                newBoardState.playerToMove === 'white' ? 'b' : 'w'
+                newBoardState.playerToMove === 'white' ? 'b' : 'w',
             );
             return {
                 ...state,
@@ -272,7 +273,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
                     fenString: (payload as FenString).fenString,
                     isCheck: isCheck(
                         newBoardState,
-                        newBoardState.playerToMove === 'white' ? 'b' : 'w'
+                        newBoardState.playerToMove === 'white' ? 'b' : 'w',
                     ),
                     isCheckMate: checkMate,
                     isStaleMate: staleMate,
@@ -283,7 +284,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
                         checkThreefoldRepetitionDraw(history),
                     isFiftyMoveRuleDraw:
                         parseInt(
-                            (payload as FenString).fenString.split(' ')[-2]
+                            (payload as FenString).fenString.split(' ')[-2],
                         ) >= 50,
                 },
             };

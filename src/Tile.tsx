@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useDrop } from 'react-dnd';
 
 import { TileProps, MovingPieceProps } from './types';
@@ -75,13 +75,13 @@ export const Tile = ({
         }
     };
 
-    const [_, drop] = useDrop(
+    const [, drop] = useDrop(
         () => ({
             accept: 'PIECE',
             drop: (item: MovingPieceProps) => handleMoveToTile(item),
             canDrop: () => state.legalMoves.includes(index),
         }),
-        [state]
+        [state],
     );
 
     return (

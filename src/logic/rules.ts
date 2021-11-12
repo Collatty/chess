@@ -1,15 +1,15 @@
 import { calculateTileOffset } from './../utils';
 import { makeMove } from '../state/useBoardReducer';
-import { BoardState, Move, State } from '../types';
+import { BoardState, Move } from '../types';
 
 export const getLegalMoves = (
     boardState: BoardState,
-    payload: Move
+    payload: Move,
 ): number[] => {
     if (!(boardState.playerToMove[0] === payload.piece[0])) return [];
     const allPossibleMovesForPiece = calculateAllMovesForPiece(
         boardState,
-        payload
+        payload,
     );
 
     return allPossibleMovesForPiece.filter((toTileIndex) => {
@@ -20,7 +20,7 @@ export const getLegalMoves = (
         const allPossibleMovesInResultingState =
             calculateAllMovesInNewStateForPlayer(
                 resultingState,
-                resultingState.playerToMove[0]
+                resultingState.playerToMove[0],
             );
 
         if (
@@ -30,36 +30,33 @@ export const getLegalMoves = (
         )
             return (
                 !allPossibleMovesInResultingState.includes(
-                    resultingState.board.indexOf(payload.piece[0] + 'k')
+                    resultingState.board.indexOf(payload.piece[0] + 'k'),
                 ) &&
                 !allPossibleMovesInResultingState.includes(
-                    (toTileIndex + payload.fromTileIndex) / 2
+                    (toTileIndex + payload.fromTileIndex) / 2,
                 ) &&
                 !allPossibleMovesInResultingState.includes(
-                    boardState.board.indexOf(payload.piece[0] + 'k')
+                    boardState.board.indexOf(payload.piece[0] + 'k'),
                 )
             );
         return !allPossibleMovesInResultingState.includes(
-            resultingState.board.indexOf(payload.piece[0] + 'k')
+            resultingState.board.indexOf(payload.piece[0] + 'k'),
         );
     });
 };
 
-const calculateAllLegalMovesInStateForPlayer = (
-    boardState: BoardState,
-    player: string
-) =>
+const calculateAllLegalMovesInStateForPlayer = (boardState: BoardState) =>
     boardState.board.flatMap((piece, index) =>
         getLegalMoves(boardState, {
             piece,
             fromTileIndex: index,
             toTileIndex: -1,
-        })
+        }),
     );
 
 export const calculateAllMovesInNewStateForPlayer = (
     newBoardState: BoardState,
-    player: string
+    player: string,
 ) =>
     newBoardState.board.flatMap((piece, index) =>
         player === piece[0]
@@ -68,36 +65,30 @@ export const calculateAllMovesInNewStateForPlayer = (
                   fromTileIndex: index,
                   toTileIndex: -1,
               })
-            : []
+            : [],
     );
 
 export const isCheck = (newBoardState: BoardState, playerWhoMoved: string) =>
     calculateAllMovesInNewStateForPlayer(
         newBoardState,
-        playerWhoMoved
+        playerWhoMoved,
     ).includes(
-        newBoardState.board.indexOf(newBoardState.playerToMove[0] + 'k')
+        newBoardState.board.indexOf(newBoardState.playerToMove[0] + 'k'),
     );
 
 export const isCheckMate = (
     newBoardState: BoardState,
-    playerWhoMoved: string
+    playerWhoMoved: string,
 ) => {
-    const legalMoves = calculateAllLegalMovesInStateForPlayer(
-        newBoardState,
-        playerWhoMoved
-    );
+    const legalMoves = calculateAllLegalMovesInStateForPlayer(newBoardState);
     return isCheck(newBoardState, playerWhoMoved) && legalMoves.length === 0;
 };
 
 export const isStaleMate = (
     newBoardState: BoardState,
-    playerWhoMoved: string
+    playerWhoMoved: string,
 ) => {
-    const legalMoves = calculateAllLegalMovesInStateForPlayer(
-        newBoardState,
-        playerWhoMoved
-    );
+    const legalMoves = calculateAllLegalMovesInStateForPlayer(newBoardState);
     return !isCheck(newBoardState, playerWhoMoved) && legalMoves.length === 0;
 };
 
@@ -110,14 +101,14 @@ const calculateAllMovesForPiece = (boardState: BoardState, payload: Move) => {
                 fromTileIndex,
                 board,
                 piece,
-                enPassantTileIndex
+                enPassantTileIndex,
             );
         case 'bp':
             return getLegalMovesBlackPawn(
                 fromTileIndex,
                 board,
                 piece,
-                enPassantTileIndex
+                enPassantTileIndex,
             );
         case 'wkn':
         case 'bkn':
@@ -143,7 +134,7 @@ const getLegalMovesWhitePawn = (
     currentTileIndex: number,
     board: string[],
     piece: string,
-    enPassantTileIndex: number
+    enPassantTileIndex: number,
 ) => {
     const legalMoves = [];
     if (!isOccupied(currentTileIndex + 8, board)) {
@@ -175,7 +166,7 @@ const getLegalMovesBlackPawn = (
     currentTileIndex: number,
     board: string[],
     piece: string,
-    enPassantTileIndex: number
+    enPassantTileIndex: number,
 ) => {
     const legalMoves: number[] = [];
     if (!isOccupied(currentTileIndex - 8, board)) {
@@ -206,7 +197,7 @@ const getLegalMovesBlackPawn = (
 const getLegalMovesKnight = (
     currentTileIndex: number,
     board: string[],
-    piece: string
+    piece: string,
 ) => {
     const legalMoves = [
         currentTileIndex + 15,
@@ -224,7 +215,7 @@ const getLegalMovesKnight = (
             (targetTileIndex) =>
                 !isOccupiedByFriendlyPiece(targetTileIndex, board, piece) &&
                 calculateTileOffset(targetTileIndex) !==
-                    calculateTileOffset(currentTileIndex)
+                    calculateTileOffset(currentTileIndex),
         )
         .filter((index) => index >= 0 && index <= 63);
 };
@@ -232,7 +223,7 @@ const getLegalMovesKnight = (
 const getLegalMovesQueen = (
     currentTileIndex: number,
     board: string[],
-    piece: string
+    piece: string,
 ) => [
     ...traverseDiagonals(currentTileIndex, board, piece),
     ...traverseLines(currentTileIndex, board, piece),
@@ -241,7 +232,7 @@ const getLegalMovesQueen = (
 const getLegalMovesKing = (
     currentTileIndex: number,
     boardstate: BoardState,
-    piece: string
+    piece: string,
 ) => {
     const legalMoves = [currentTileIndex - 8, currentTileIndex + 8];
 
@@ -266,8 +257,8 @@ const getLegalMovesKing = (
                 !isOccupiedByFriendlyPiece(
                     targetTileIndex,
                     boardstate.board,
-                    piece
-                )
+                    piece,
+                ),
         )
         .filter((index) => index >= 0 && index <= 63);
 };
@@ -275,7 +266,7 @@ const getLegalMovesKing = (
 const getCastlingMoves = (
     currentTileIndex: number,
     piece: string,
-    boardState: BoardState
+    boardState: BoardState,
 ): number[] => {
     if (currentTileIndex === 3 && piece === 'wk')
         return getCastlingMovesWhite(boardState);
@@ -335,19 +326,19 @@ const getCastlingMovesBlack = ({
 const getLegalMovesBishop = (
     currentTileIndex: number,
     board: string[],
-    piece: string
+    piece: string,
 ): number[] => traverseDiagonals(currentTileIndex, board, piece);
 
 const getLegalMovesRook = (
     currentTileIndex: number,
     board: string[],
-    piece: string
+    piece: string,
 ): number[] => traverseLines(currentTileIndex, board, piece);
 
 const traverseDiagonals = (
     currentIndex: number,
     board: string[],
-    piece: string
+    piece: string,
 ) => {
     const legalMoves: number[] = [];
     const offsets = [7, 9, -7, -9];
@@ -373,7 +364,7 @@ const traverseDiagonals = (
 const traverseLines = (
     currentIndex: number,
     board: string[],
-    piece: string
+    piece: string,
 ) => {
     const legalMoves: number[] = [];
     const offsetsFile = [8, -8];
@@ -418,7 +409,7 @@ const isDiagonal = (targetIndex: number, currentIndex: number) =>
 const isOccupiedByFriendlyPiece = (
     targetTileIndex: number,
     board: string[],
-    piece: string
+    piece: string,
 ) => (board[targetTileIndex] ? board[targetTileIndex][0] === piece[0] : false);
 
 const isOccupied = (targetIndex: number, board: string[]) => {

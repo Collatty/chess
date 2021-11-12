@@ -1,7 +1,4 @@
-import { isCheck, isCheckMate, isStaleMate } from './logic/rules';
 import { BoardState, State } from './types';
-
-const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'];
 const FILES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export const getBackgroundColor = (index: number) =>
@@ -73,7 +70,7 @@ export const buildFenString = (boardState: BoardState): string => {
 };
 
 export const generateBoardStateFromFenString = (
-    fenString: string
+    fenString: string,
 ): BoardState => {
     const [
         boardString,

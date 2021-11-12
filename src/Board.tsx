@@ -14,7 +14,7 @@ export const Board = ({
         state.rewindIndex === -1
             ? state.boardState.board
             : generateBoardStateFromFenString(
-                  state.gameState.history.slice(state.rewindIndex)[0]
+                  state.gameState.history.slice(state.rewindIndex)[0],
               ).board
     ).map((piece, index) => (
         <Tile
