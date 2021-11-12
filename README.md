@@ -12,7 +12,7 @@ A complete chess board with implemented rules as a react component.
 
 ## Example usage
 
-```
+```jsx
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Chess from '@collatty/chess';
@@ -40,7 +40,7 @@ Note that the board should be wrapped in a square container. Future versions mig
 
 If you wish to perform side effects after moves etc, you can import `useBoardReducer`, initialize it and pass it as a prop. A use case could be if you wish to play against an AI and programmatically perform whatever move your AI decides to play, like shown in the example below.
 
-```
+```jsx
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Chess, { useBoardReducer } from '@collatty/chess';
