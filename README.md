@@ -85,3 +85,7 @@ ReactDOM.render(<App></App>, document.getElementById('root'));
 ## Contributing
 
 Feel free to raise issues regarding feature requests and bugs in the repo. I will be maintaining it for the forseeable future. PRs are also welcome.
+
+## Credz
+
+The SVGs of the pieces are found [here](https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces) distributed under [this](https://creativecommons.org/licenses/by-sa/3.0/) license. Thanks to Cburnett for making them!
