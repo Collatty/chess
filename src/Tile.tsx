@@ -84,6 +84,8 @@ export const Tile = ({
         [state],
     );
 
+    console.log('Test linter');
+
     return (
         <div
             className={`tile ${backgroundColor}`}
