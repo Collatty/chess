@@ -1,6 +1,6 @@
 # @collatty/chess
 
-A complete chess board with implemented rules as a react component.
+A complete chessboard with implemented rules as a react component.
 
 ## Installation
 
