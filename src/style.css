@@ -43,6 +43,7 @@
 
 .white .menu-item:hover {
     filter: brightness(80%);
+    cursor: pointer;
 }
 
 .legal-move {

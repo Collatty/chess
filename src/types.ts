@@ -30,6 +30,7 @@ export interface BoardState {
 export interface GameState {
     fenString: string;
     history: string[];
+    moveHistory: string[];
     isCheck: boolean;
     isCheckMate: boolean;
     isStaleMate: boolean;
@@ -43,6 +44,7 @@ export interface Move {
     piece: string;
     fromTileIndex: number;
     toTileIndex: number;
+    promotionPiece?: string;
 }
 
 export interface Action {
@@ -56,7 +58,11 @@ export interface Action {
         | 'claimDraw'
         | 'rewindMove'
         | 'forwardMove';
-    payload: Move | FenString | null;
+    payload: Move | FenString | AlgebraicMove | null;
+}
+
+export interface AlgebraicMove {
+    algebraicMove: string;
 }
 
 export interface FenString {

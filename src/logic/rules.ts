@@ -110,8 +110,8 @@ const calculateAllMovesForPiece = (boardState: BoardState, payload: Move) => {
                 piece,
                 enPassantTileIndex,
             );
-        case 'wkn':
-        case 'bkn':
+        case 'wn':
+        case 'bn':
             return getLegalMovesKnight(fromTileIndex, board, piece);
         case 'wk':
         case 'bk':

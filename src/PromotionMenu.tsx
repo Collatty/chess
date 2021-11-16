@@ -23,7 +23,7 @@ export const PromotionMenu = ({ color, selectedPiece }: Props) => (
         <div className="menu-item" onClick={() => selectedPiece('r')}>
             {color === 'w' ? <WhiteRook /> : <BlackRook />}
         </div>
-        <div className="menu-item" onClick={() => selectedPiece('kn')}>
+        <div className="menu-item" onClick={() => selectedPiece('n')}>
             {color === 'w' ? <WhiteKnight /> : <BlackKnight />}
         </div>
         <div className="menu-item" onClick={() => selectedPiece('b')}>

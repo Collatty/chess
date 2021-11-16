@@ -48,13 +48,14 @@ export const Tile = ({
                 const menu = (
                     <PromotionMenu
                         color={item.piece[0]}
-                        selectedPiece={(piece: string) => {
+                        selectedPiece={(pieceValue: string) => {
                             dispatch({
                                 type: 'move',
                                 payload: {
-                                    piece: item.piece[0] + piece,
+                                    piece: item.piece,
                                     fromTileIndex: item.fromIndex,
                                     toTileIndex: index,
+                                    promotionPiece: item.piece[0] + pieceValue,
                                 },
                             });
                             setMenu(null);
@@ -109,7 +110,7 @@ export const Tile = ({
                 </div>
             ) : fullState.rewindIndex === -1 ? (
                 piece &&
-                piece[0] === primaryPlayer[0] &&
+                // piece[0] === primaryPlayer[0] &&
                 !fullState.gameState.isGameOver ? (
                     <DraggablePiece piece={piece} fromIndex={index} />
                 ) : (

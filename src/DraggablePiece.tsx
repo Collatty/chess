@@ -25,9 +25,9 @@ export const pieceSwitch = (piece?: string): JSX.Element => {
             return <BlackRook />;
         case 'wr':
             return <WhiteRook />;
-        case 'bkn':
+        case 'bn':
             return <BlackKnight />;
-        case 'wkn':
+        case 'wn':
             return <WhiteKnight />;
         case 'bb':
             return <BlackBishop />;

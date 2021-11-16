@@ -6,15 +6,27 @@ import {
     isCheckMate,
     isStaleMate,
 } from '../logic/rules';
-import { Action, BoardState, FenString, Move, State } from '../types';
-import { buildFenString, generateBoardStateFromFenString } from '../utils';
+import {
+    Action,
+    BoardState,
+    FenString,
+    Move,
+    State,
+    AlgebraicMove,
+} from '../types';
+import {
+    buildFenString,
+    generateBoardStateFromFenString,
+    mapMoveToAlgebraicNotation,
+    translateAlgebraicStringToMove,
+} from '../utils';
 
 const initBoard = () => {
-    const board: string[] = ['wr', 'wkn', 'wb', 'wk', 'wq', 'wb', 'wkn', 'wr'];
+    const board: string[] = ['wr', 'wn', 'wb', 'wk', 'wq', 'wb', 'wn', 'wr'];
     board.push(...Array(8).fill('wp'));
     board.push(...Array(32).fill(''));
     board.push(...Array(8).fill('bp'));
-    board.push('br', 'bkn', 'bb', 'bk', 'bq', 'bb', 'bkn', 'br');
+    board.push('br', 'bn', 'bb', 'bk', 'bq', 'bb', 'bn', 'br');
     return board;
 };
 const INITIAL_BOARD = initBoard();
@@ -36,6 +48,7 @@ const initialState: State = {
     gameState: {
         fenString: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         history: ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'],
+        moveHistory: [],
         isCheck: false,
         isCheckMate: false,
         isStaleMate: false,
@@ -54,7 +67,7 @@ export const makeMove = (boardState: BoardState, payload: Move): BoardState => {
     const playerToMove = payload.piece[0] === 'w' ? 'black' : 'white';
 
     newBoard[payload.fromTileIndex] = '';
-    newBoard[payload.toTileIndex] = payload.piece;
+    newBoard[payload.toTileIndex] = payload.promotionPiece || payload.piece;
 
     if (payload.toTileIndex === boardState.enPassantTileIndex) {
         payload.piece[0] === 'w'
@@ -172,10 +185,18 @@ const checkThreefoldRepetitionDraw = (history: string[]): boolean =>
 const reducer = (state: State, { type, payload }: Action): State => {
     switch (type) {
         case 'move': {
-            const movedState = makeMove(state.boardState, payload as Move);
+            const move =
+                payload && 'algebraicMove' in payload
+                    ? translateAlgebraicStringToMove(
+                          { ...state },
+                          (payload as AlgebraicMove).algebraicMove,
+                      )
+                    : (payload as Move);
+
+            const movedState = makeMove(state.boardState, move);
             const isCaptureOrPawnMove =
-                state.boardState.board[(payload as Move).toTileIndex] !== '' ||
-                (payload as Move).piece[1] === 'p';
+                state.boardState.board[move.toTileIndex] !== '' ||
+                move.piece[1] === 'p';
             const newBoardState = {
                 ...movedState,
                 fullMoves:
@@ -189,26 +210,26 @@ const reducer = (state: State, { type, payload }: Action): State => {
 
             const fenString = buildFenString(newBoardState);
             const history = [...state.gameState.history, fenString];
-            const checkMate = isCheckMate(
-                newBoardState,
-                (payload as Move).piece[0],
-            );
-            const staleMate = isStaleMate(
-                newBoardState,
-                (payload as Move).piece[0],
-            );
+            const checkMate = isCheckMate(newBoardState, move.piece[0]);
+            const staleMate = isStaleMate(newBoardState, move.piece[0]);
+            const check = isCheck(newBoardState, move.piece[0]);
+            let alg = mapMoveToAlgebraicNotation({ ...state }, move);
+            if (checkMate) alg += '#';
+            else if (check) alg += '+';
+
             return {
                 ...state,
                 boardState: { ...newBoardState, selectedPieceTileIndex: -1 },
                 gameState: {
                     ...state.gameState,
                     fenString,
-                    isCheck: isCheck(newBoardState, (payload as Move).piece[0]),
+                    isCheck: check,
                     isCheckMate: checkMate,
                     isStaleMate: staleMate,
                     isGameOver:
                         checkMate || staleMate || state.gameState.isDrawClaimed,
                     history,
+                    moveHistory: [...state.gameState.moveHistory, alg],
                     isThreefoldRepetitionDraw:
                         checkThreefoldRepetitionDraw(history),
 
@@ -245,7 +266,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
             return {
                 ...state,
                 gameState: state.gameState,
-                boardState: { ...state.boardState, board },
+                boardState: { ...state.boardState, board, legalMoves: [] },
             };
         }
         case 'setStateFromFenString': {
@@ -280,6 +301,7 @@ const reducer = (state: State, { type, payload }: Action): State => {
                     isGameOver:
                         checkMate || staleMate || state.gameState.isDrawClaimed,
                     history,
+                    moveHistory: [...state.gameState.moveHistory, 'todo'],
                     isThreefoldRepetitionDraw:
                         checkThreefoldRepetitionDraw(history),
                     isFiftyMoveRuleDraw:
